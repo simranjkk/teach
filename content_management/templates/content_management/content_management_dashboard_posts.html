@@ -1,0 +1,78 @@
+{% extends 'content_management/content_management_dashboard_base.html' %}
+{% block title %} {{ type|capfirst }} : dashboard {% endblock %}
+{% block body %}           
+<div class="row">
+	<div class="col-lg-12">
+		<h1> {{ type|capfirst }}<small>  Posts</small></h1>
+		 {% if warnings %}
+		<div class="alert alert-dismissable alert-warning">
+        	<button data-dismiss="alert" class="close" type="button">×</button>
+            <h4>Warning!</h4>
+             {% for warning in warnings %}
+			  <p> {{ warning }} </p>
+			 {% endfor %}
+			
+        </div>
+         {% endif %}
+     </div>
+</div>
+
+<div class="row">
+
+	<div class="col-md-9 col-xs-12">
+		<div class="panel panel-primary">
+			<div class="panel-heading"
+				<h3 class="panel-title">{{ type|capfirst }} : Posts</h3>
+			</div>
+			<div class="panel-body">
+
+			{% if posts %}
+			{% regroup posts by category.url as posts_ordered %}
+				<form id="action_form"  method="POST">
+				{% csrf_token %}
+				<div class="row text-center">
+				<div class="col-sm-2 col-xs-2">
+				</div>
+				<div class="col-sm-6 col-xs-8">
+				<p class="lead">Post Names</p>
+				</div>
+				<div class="col-sm-4 col-xs-2">
+				</div>
+				</div>
+				<hr>
+					{% for post_ordered in posts_ordered %}
+						<div class="row text-center">
+							<div class="col-xs-12">
+								<p class="lead">{{ post_ordered.grouper }}</p>
+							</div>
+						</div>
+						{% for post in post_ordered.list %}
+							<div class="row form-group">
+								<div class="col-sm-2 col-xs-2">
+									<input type="checkbox" name=id{{ post.id }} value={{ post.id }} />
+								</div>
+								<div class="col-sm-6 col-xs-8">
+								<p>{{ post.post_name }}</p>
+								</div>	
+								<div class="col-sm-4 col-xs-2">
+								<a href="/edit/post/{{ post.id }}/"> Edit</a> 
+								</div>
+							</div>
+					{% endfor%}
+			{% endfor %}
+			{% endif %}
+			</div>
+</div>		</div>
+	<div class="col-md-3 col-xs-12">
+		{% if type == "published" or type == "pending" %}
+			<button type="submit"  name="action" value="draft" >Send to Drafts</button>
+			<button type="submit"  name="action" value="trash" >Move to Trash</button>
+		{% elif type == "drafts" %}
+			<button type="submit"  name="action" value="trash" >Move to Trash</button>
+		{% elif type == "trash" %}
+			<button type="submit"  name="action" value="delete" > Delete Permanently</button>
+			<button type="submit" name="action" value="draft" > Move to Drafts </button>
+		{% endif %}
+    </div>
+</div>
+{% endblock %}

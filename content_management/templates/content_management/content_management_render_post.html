@@ -1,0 +1,147 @@
+{% extends "content_management/content_management_base.html" %}
+
+{% load static %}
+
+{% block head_title %} {% if requested_post %} {{ requested_post.post_name }} {% else %} {{ requested_posts.0.post_name }} {% endif%} {% endblock %}
+{% block navbar_header %} 
+<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-sibbling" style="float:left;">
+                     <span class="sr-only">Toggle navigation</span>
+                    <!-- <span class="icon-bar"></span>
+                     <span class="icon-bar"></span>
+                     <span class="icon-bar"></span>-->
+					Sibbling Posts
+                 </button>
+
+
+
+
+{{ requested_post.author.username }} 
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript" src="{% static "dajax/jquery.dajax.core.js" %}"></script>
+
+	<div class="row">
+		
+		<div class="col-md-3 col-md-push-9 navbar-sibbling">
+			{% if sibbling_posts %}
+				<div class="list-group" style="padding-top:20px;">
+        			<span href="#" class="list-group-item text-center">
+          				<strong style="font-size:20px;"> {{ requested_post.category.name }}</strong></span> 
+            			<span class="pull-right" id="slide-submenu">
+                			<i class="fa fa-times"></i>
+        				</span>
+					<div id="sibblings">	
+						{%for post in sibbling_posts %}
+							{% if post.url == requested_post.url %}
+								<a class='list-group-item active' href='/subjects{{post.url}}author{{post.author.username}}'>{{post.post_name}}</a>
+							{% else %}
+								<a class='list-group-item ' href='/subjects{{ post.url }}author/{{ post.author.username }}'> {{ post.post_name }}</a>
+							{% endif %}	
+						{% endfor %}
+					</div>
+				</div>
+			{% endif %}
+		</div>
+
+		<div class="col-md-9 col-md-pull-3">
+			<div id="content" style="padding-left:10px; ">
+				<link rel="stylesheet" type="text/css" href="{% static "html/css/cke-editor.css" %}"/>
+				<div class="page-header">
+					<a href="/subjects{{requested_post.category.url }}"><i class="fa fa-chevron-left"></i> {{requested_post.category.name }}</a>
+					<h3 style="text-align:center;">{{ requested_post.title }}</h3>
+				</div>
+				{% autoescape off %}
+					{{ requested_post.content }}
+				{% endautoescape %}
+			</div>
+			<ul class="pager">
+				<li><a id="previous" href="">&larr; Previous</a></li>
+				<li><a id="next" href="">Next &rarr;</a></li>					
+			</ul>
+			<script>
+				prev = $("#sibblings .active").prev().attr("href");	
+				next = $("#sibblings .active").next().attr("href");
+				$(".pager #previous").attr("href",prev);
+				$(".pager #next").attr("href", next);
+			</script>
+			<!-------Comment Form Code Here---------------------------------------------------------
+			<form action="" method="post" id="my_form" accept-charset="utf-8">
+				{% csrf_token%}
+				{% for field in form %}
+					<div class="fieldWrapper">
+						{{field.errors }}
+						{{field}}
+					</div>
+				{% endfor %}
+				<p><input type="button" value="Send" onclick="add_comment();"></p>
+			</form>
+		-->	
+		</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<!--Comment ajax dajax code -------------
+<script>
+function add_comment(){
+	Dajaxice.content_management.add_comment(Dajax.process,{'form':$('#my_form').serialize(true)});
+}
+</script>
+-->
+<!--<script>
+					
+$(function(){
+				
+
+	$('#slide-submenu').on('click',function() {			        
+        $(this).closest('.list-group').fadeOut('slide',function(){
+        	$('.mini-submenu').fadeIn();	
+        });
+        
+      });
+
+	$('.mini-submenu').on('click',function(){		
+        $(this).next('.list-group').toggle('slide');
+        $('.mini-submenu').hide();
+	})
+})
+</script>
+<style>
+/* CSS used here will be applied after bootstrap.css */
+.mini-submenu{
+  display:none;  
+  background-color: rgba(0, 0, 0, 0);  
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  border-radius: 4px;
+  padding: 9px;  
+  /*position: relative;*/
+  width: 42px;
+
+}
+
+.mini-submenu:hover{
+  cursor: pointer;
+}
+
+.mini-submenu .icon-bar {
+  border-radius: 1px;
+  display: block;
+  height: 2px;
+  width: 22px;
+  margin-top: 3px;
+}
+
+.mini-submenu .icon-bar {
+  background-color: #000;
+}
+
+#slide-submenu{
+  background: rgba(0, 0, 0, 0.45);
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+</style>
+-->
+{% endblock %}

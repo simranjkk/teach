@@ -1,0 +1,74 @@
+{% extends "content_management/content_management_base.html" %}
+{% block body %}
+	<div class="row">
+		<div class="col-md-12 text-center ">
+			<h1><u>Add New Category</u></h1><hr>
+		</div>
+	</div>
+	
+	<div class="row">
+		<form id="category_form" method="post" action="/create/category/">
+			{% csrf_token %}
+				<div class="col-md-2 text-center">
+					<h3>Select Parent Category</h3>
+						{{ form.parent }}
+						{% if form.parent.errors %}
+							{% for error in form.parent.errors %}
+								<div class="alert alert-danger"> {{ error|escape }} </div>
+							{% endfor %}
+						{% endif %}
+					<hr>
+				</div>
+				
+				<div class="col-md-8">
+					<div class="row form-group" style="padding-bottom:10px;">
+						<div class="col-md-1 col-sm-1">
+							<label for="{{ form.name.id_for_label }}" class="col-md-2 text-center"> Name:</label>
+						</div>
+						<div class="col-md-10 col-sm-1">
+							<input type="text" name="name" maxlength="70" id="{{ form.name.id_for_label }}" class="form-control" value="{{ form.name.value }}" />
+						</div>
+						<div class="col-md-1 col-sm-1">
+						</div>
+						{% if form.name.errors %}
+							{% for error in form.name.errors %}
+								<div class="alert alert-danger">{{ error|escape }}</div>
+							{% endfor %}
+						{% endif %}
+					</div>
+					
+					<div class="text-center"> <h3><label for="{{ form.description.id_for_label }}">What does this category contains...?</label></h3></div>	
+					<textarea name="description" id="{{ form.description.id_for_label }}">
+						{{ form.description.value }}
+					</textarea>
+					<script src="http://cdn.ckeditor.com/4.4.3/full/ckeditor.js"></script>					
+					<script>
+						//Replace the <textarea id="editor1"> with a CKEditor instance, using default configuration.
+						CKEDITOR.replace('description');
+					</script>
+					{% if form.description.errors %}
+						{% for error in form.description.errors %}
+							<div class="alert alert-danger">{{ error|escape }}</div>
+						{% endfor %}
+					{% endif %}
+				</div>
+
+				<div class="col-md-2 text-center" style="padding-top:10px;">
+					<input type="submit" value="Create New" name="create" class="btn btn-lg btn-success" />
+				</div>
+			</div>
+		</form>
+	</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+

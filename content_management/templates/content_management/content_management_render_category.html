@@ -1,0 +1,62 @@
+{% extends "content_management/content_management_base.html" %}
+{% load static %}
+{% block head_title %} {{ requested_category.name }} {% endblock %}
+
+{% block body %}
+<style>
+.jumbotron{
+background-color:transparent;
+}
+@media (min-width: 992px) { 
+#subcategories{
+float:right;
+}
+#categories{
+position:fixed;
+}
+}
+</style>
+<div class="row">
+	<div class="col-md-5" id="categories" style="height:100%; background: url(http://thisisembark.com/writer/img/background1.jpg) no-repeat center center;" {% static "html/img/categories.png" %}');">
+		<div class="jumbotron" style="  color:white;";>
+			<a href="/subjects{{requested_category.parent.url}}" style="color:white;"><i class="fa fa-chevron-left"></i> {{requested_category.parent.name}}</a>
+			<h1 class="text-center" ><u>{{ requested_category.name }}</u></h1>
+			<p>{%autoescape off %} {{ requested_category.description }} {% endautoescape %}</p>
+		</div>
+	</div>
+	<div class="col-md-7" id="subcategories" style="height:100%; overflow:auto; ">
+		{% if results %}
+			{% if result_type == "post" %}
+				{% for result in results %}
+					<div class="row">
+						<div class="col-xs-12">
+							<h2><a href ="/subjects{{ result.url }}author/{{result.author.username }}">{{ result.post_name }}</a></h2>
+							<p>{{ result.excerpt }}</p>
+							<a href="/subjects{{ result.url }}author/{{ result.author.username }}"><i class="fa fa-plus"></i> View</a>
+							<i class="fa fa-thumbs-up"></i> {{ result.likes }} Likes
+						</div>
+					</div>
+					<hr>
+				{% endfor %}
+			{% elif result_type == "category" %}
+				{% for result in results %}
+					<div class="row">
+						<div class="col-xs-12">
+							<h2><a href="/subjects{{ result.url }}">{{ result.name }}</a><small> (10 items)</small></h2>
+						</div>
+					</div>
+					<hr>
+				{% endfor %}
+			{% endif %}
+		{% else %}
+			<div class="jumbotron text-center">
+				<h2> Coming Soon </h2>		
+				<p class="lead">Content is being added. Please visit again soon.</p>
+				<hr>
+			</div>
+		{% endif %}
+	</div>
+</div>
+
+
+{% endblock %}

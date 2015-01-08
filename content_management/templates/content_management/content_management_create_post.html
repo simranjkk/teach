@@ -1,0 +1,105 @@
+{% extends "content_management/content_management_base.html" %}
+
+{% block body %}	
+<style>
+</style>
+
+	<div class="row">
+		<div class="col-md-12 text-center">
+			<h1><u> Add New Post</u></h1><hr>
+		</div>
+	</div>
+
+	<div class="row">
+		<form id="post_form" method="post" action="/create/post/">
+			{% csrf_token %}
+			<div class="col-md-2 text-center">
+				<h3>Select Category</h3>
+				{{ form.category }}
+				{% if form.category.errors %}
+					{% for error in form.category.errors %}
+						<div class="alert alert-danger">{{error|escape }}</div>
+					{% endfor %}
+				{% endif %}
+			</div>	
+
+		<div class="col-md-8">
+			<div class="row form-group" style="padding-bottom:10px;">
+				<div class="col-md-1 col-sm-1">	
+					<label for="{{ form.title.id_for_label }}" class="col-md-2 text-center"> Title:</label>
+				</div>
+				<div class="col-md-10 col-sm-10">
+					<input type="text" name="title" maxlength="70" id="{{ form.title.id_for_label }}" class="form-control" value="{{ form.title.value }}"/>
+				</div>
+				<div class="col-md-1 col-sm-1">
+				</div>
+				{% if form.title.errors %}
+					{% for error in form.title.errors %}
+						<div class="alert alert-danger">{{ error|escape }}</div>	
+					{% endfor %}
+				{% endif %}
+			</div>	
+
+			<div class="row form-group">
+				<div class="col-md-1 col-sm-1">
+					<label for="{{ form.post_name.id_for_label }}" class="col-md-2"> Post Name:</label>
+				</div>
+				<div class="col-md-10 col-sm-10">
+					<input type="text" name="post_name" maxlength="100" id="{{ form.post_name.id_for_label }}" class="form-control" value="{{ form.post_name.value }}"/>
+				</div>
+				<div class="col-md-1 col-sm-1">
+				</div>
+				{% if form.post_name.errors %}
+					{% for error in form.post_name.errors %}
+						<div class="alert alert-danger">{{error|escape }}</div>
+					{% endfor %}
+				{% endif %}
+			</div>
+
+			<textarea name="content" id="{{ form.content.id_for_label }}">
+			{{ form.content.value }}
+			</textarea>
+			<script src="http://cdn.ckeditor.com/4.4.3/full/ckeditor.js"></script>
+			<script>
+				// Replace the <textarea id="editor1"> with a CKEditor instance, using default configuration.
+				CKEDITOR.replace('content');
+			</script>
+			{% if form.content.errors %}
+             	{% for error in form.content.errors %}
+                   	<div class="alert alert-danger">{{error|escape }}</div>
+                {% endfor %}
+            {% endif %}
+
+		
+			<div class="row ">
+				<div class="col-md-6">
+					<label for="{{ form.metadata.id_for_label }}" class="col-md-2"> Metadata:</label>
+					<input type="text" name="metadata" maxlength="140" id="{{ form.metadata.id_for_label }}" class="form-control" value="{{ form.metadata.value }}"/>
+				 {% if form.metadata.errors %}
+                 	{% for error in form.metadata.errors %}
+                    	<div class="alert alert-danger">{{error|escape }}</div>
+                    {% endfor %}
+                 {% endif %}
+				</div>
+
+
+				<div class="col-md-6">
+					<label for="{{ form.excerpt.id_for_label }}" class="col-md-2"> Excerpt:</label>
+					<input type="text" name="excerpt" maxlength="500" id="{{ form.excerpt.id_for_label }}" class="form-control" value="{{ form.excerpt.value }}"/>
+					{% if form.excerpt.errors %}
+                    	{% for error in form.excerpt.errors %}
+                        	<div class="alert alert-danger">{{error|escape }}</div>
+                    	{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2 text-center" style="padding-top:10px;">
+			<div><input type="submit" value="Publish" name="publish" class="btn btn-lg btn-success"/></div><br>	
+			<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-lg btn-primary"/></div><br>
+			<div><a href="/"><button type="button" class="btn btn-lg btn-danger">Discard</button></a></div>
+		</div>
+		</form>
+	</div>		
+{% endblock %}
+
