@@ -9,6 +9,7 @@ from django.db.models import F, Min, Max, Count
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 import re
+from django.utils import timezone
 
 
 
@@ -130,7 +131,7 @@ def edit_post(request, post_id):
 				form = PostForm( request.POST, instance = post)
 				if form.is_valid():
 					edited_post = form.save( commit = False )
-					edited_post.date_time_last_modified = datetime.now()
+					edited_post.date_time_last_modified = timezone.now()
 					edited_post.url = create_url(edited_post.category.url, edited_post.post_name)
 					if 'draft' in request.POST:
 						edited_post.draft = True
@@ -169,8 +170,7 @@ def edit_post(request, post_id):
 
 def index(request): #landing page
 	context = RequestContext(request)
-	level1_categories = Category.objects.filter(level=1).order_by('lt')
-	return render_to_response('content_management/content_management_index.html', { 'level1_categories': level1_categories}, context)
+	return render_to_response('content_management/content_management_index.html', { }, context)
 
 @login_required()
 def set_draft( request ):
@@ -239,8 +239,8 @@ def create_post(request):
 			post=form.save(commit=False)
 			post.likes=0
 			post.author = request.user
-			post.date_time_created = datetime.now()
-			post.date_time_last_modified  = datetime.now()
+			post.date_time_created = timezone.now()
+			post.date_time_last_modified  = timezone.now()
 			post.url = create_url(post.category.url, post.post_name)
 			post.user_sequence = 0
 			post.sequence = 0
@@ -250,13 +250,11 @@ def create_post(request):
 				if request.user.is_staff:
 					post.published = True
 					temp = Post.objects.filter( category = post.category, author = post.author, published=True, draft=False, trash=False ).aggregate(Max('user_sequence')) 
-					print temp
 					if temp['user_sequence__max']:
 						post.user_sequence = temp['user_sequence__max']+1
 					else:
 						post.user_sequence = 1;
 					temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False ).aggregate(Max('sequence'))
-					print temp
 					if temp['sequence__max']:
 						post.sequence = temp['sequence__max'] +1
 					else:
@@ -291,7 +289,7 @@ def create_category(request):
 
 			parent = new_category.parent	
 			try:
-				new_category_created, created = Category.objects.get_or_create( name=new_category.name,url=create_url(parent.url, new_category.name),parent=new_category.parent,defaults={'lt':parent.rt, 'rt':parent.rt+1, 'level':parent.level+1, 'date_time':datetime.now(), 'published':True, 'description':new_category.description} )
+				new_category_created, created = Category.objects.get_or_create( name=new_category.name,url=create_url(parent.url, new_category.name),parent=new_category.parent,defaults={'lt':parent.rt, 'rt':parent.rt+1, 'level':parent.level+1, 'date_time':timezone.now(), 'published':True, 'description':new_category.description} )
 				if created:
 					Category.objects.filter(lt__gt=parent.rt).order_by('-lt').update(lt=F('lt')+2,rt=F('rt')+2)
 					Category.objects.filter(lt__lte=parent.lt, rt__gte=parent.rt).order_by('lt').update(rt=F('rt')+2)
