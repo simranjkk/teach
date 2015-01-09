@@ -164,7 +164,3 @@ SOCIALACCOUNT_PROVIDERS = {
              'METHOD': 'js_sdk'
         }
         }
-EMAIL_BACKEND = "sgbackend.SendGridBackend"
-SENDGRID_USER = "teachoo" 
-SENDGRID_PASSWORD = "OOHCAETteachoo"
-DEFAULT_FROM_EMAIL = "no-reply@teachoo.com"
