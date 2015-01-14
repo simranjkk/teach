@@ -34,7 +34,7 @@ def update_parent_categories(request, category_id):
     
     for category in parent_categories:
         value = category.id
-        temp = "<option value=\"" + str(value) + "\">" + category.url + "</option>" 
+        temp = "<option value=\"" + str(value) + "\">" + category.url.split("/",2)[2] + "</option>" 
         out.append(temp)
     
     dajax.assign('#id_category','innerHTML',''.join(out))

@@ -47,7 +47,7 @@
         				</span>
 					<div id="sibblings">	
 						{%for post in sibbling_posts %}
-							{% if post.url == requested_post.url and post.author == requested_post.author %}
+							{% if post.url == requested_post.url %}
 								<a class='list-group-item active' href='/subjects{{post.url}}author/{{post.author.username}}'>{{post.post_name}}</a>
 							{% else %}
 								<a class='list-group-item ' href='/subjects{{ post.url }}author/{{ post.author.username }}'> {{ post.post_name }}</a>

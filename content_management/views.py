@@ -122,7 +122,7 @@ def edit_post(request, post_id):
 	'''
 	This view is used to edit the post only by the post authors.
 	'''
-
+# take previous status under consideration i.e. draft or published, so that on editing published post its sequence and user_sequence does not change
 	context = RequestContext(request)
 	try:
 		post = Post.objects.select_for_update().get( id = post_id )
@@ -168,9 +168,6 @@ def edit_post(request, post_id):
 		print "waheguru"
 		#TODO: send notification to admin about the issue with reference of post id
 
-def index(request): #landing page
-	context = RequestContext(request)
-	return render_to_response('content_management/content_management_index.html', { }, context)
 
 @login_required()
 def set_draft( request ):
@@ -185,43 +182,58 @@ def set_draft( request ):
 	warnings=[str(count) + 'posts sent to draft']
 	return warnings
 
-@user_passes_test(lambda u: u.is_superuser)
+@login_required
 def set_published( request ):
-	count=0
-	warnings = []
-	for key, post_id in request.POST.iteritems():
-		if check_key(key):
-			try:
-				post = Post.objects.get( id=post_id )
-				post.published = True
-				post.draft = False
-				post.trash = False
-				temp = Post.objects.filter( category = post.category, author = post.author, published=True, draft=False, trash=False ).aggregate(Max('user_sequence'))
-				post.user_sequence = temp['user_sequence__max']+1
-				temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False ).aggregate(Max('sequence'))
-				post.sequence = temp['sequence__max'] +1
-				post.save()
-				count+=1
-			except Post.DoesNotExist:
-				warnings.append(" post with post id" + str(post_id) + "does Not exist")
+	"""
+	This view is only for admin to publish posts of other users.
+	"""
+	
+	if request.user.is_superuser:
+		count=0
+		warnings = []
+		for key, post_id in request.POST.iteritems():
+			if check_key(key):
+				try:
+					post = Post.objects.get( id=post_id )
+					post.published = True
+					post.draft = False
+					post.trash = False
+					temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False, post_name = post.post_name )
+					if temp:
+						post.sequence = temp[0].sequence
+					else:
+						temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False ).aggregate(Max('sequence'))
+						if temp['sequence__max']:
+							post.sequence = temp['sequence__max'] +1
+						else:
+							post.sequence = 1;
 
-	warnings.append(str(count)+ 'posts published')
-	return warnings
+					post.save()
+					count+=1
+				except Post.DoesNotExist:
+					warnings.append(" post with post id" + str(post_id) + "does Not exist")
 
-@user_passes_test(lambda u: u.is_superuser)
+		warnings.append(str(count)+ 'posts published')
+		return warnings
+	
+	else:
+		raise PermissionDenied
+
+@login_required
 def reject_post( request ):
-	count=0
-	warnings = []
-	for key, post_id in request.POST.iteritems():
-		if check_key(key):
-			try:
-				post = Post.objects.get(id=post_id)
-				post.draft=True
-				count+=1
-			except Post.DoesNotExist:
-				warnings.append("post with post id" + str(post_id) + "does not exist")
+	if request.user.is_superuser:
+		count=0
+		warnings = []
+		for key, post_id in request.POST.iteritems():
+			if check_key(key):
+				try:
+					post = Post.objects.get(id=post_id)
+					post.draft=True
+					count+=1
+				except Post.DoesNotExist:
+					warnings.append("post with post id" + str(post_id) + "does not exist")
 		 
-	warnings.append(str(count) + "posts rejected")	
+		warnings.append(str(count) + "posts rejected")	
 
 @login_required()
 def create_post(request):
@@ -233,34 +245,44 @@ def create_post(request):
 
 	context = RequestContext(request)
 	if request.method == 'POST':
-		form = PostForm(request.POST)
+		form = PostForm(request.POST, author=request.user)
 			
 		if form.is_valid():
 			post=form.save(commit=False)
-			post.likes=0
-			post.author = request.user
 			post.date_time_created = timezone.now()
 			post.date_time_last_modified  = timezone.now()
-			post.url = create_url(post.category.url, post.post_name)
-			post.user_sequence = 0
+			post.author = request.user
 			post.sequence = 0
+			post.user_sequence = 0
+			post.likes = 0
+			post.url = create_url(post.category.url, post.post_name)
 			if 'draft' in request.POST:
 				post.draft = True
+				post.save()
+				return HttpResponseRedirect("/dashboard/posts/drafts/")
 			elif 'publish' in request.POST:
+				temp = Post.objects.filter( category = post.category, author = post.author, published=True, draft=False, trash=False ).aggregate(Max('user_sequence')) 
+				if temp['user_sequence__max']:
+					post.user_sequence = temp['user_sequence__max']+1
+				else:
+					post.user_sequence = 1;
+
 				if request.user.is_staff:
 					post.published = True
-					temp = Post.objects.filter( category = post.category, author = post.author, published=True, draft=False, trash=False ).aggregate(Max('user_sequence')) 
-					if temp['user_sequence__max']:
-						post.user_sequence = temp['user_sequence__max']+1
+					temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False, post_name = post.post_name )
+					if temp:
+						post.sequence = temp[0].sequence
 					else:
-						post.user_sequence = 1;
-					temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False ).aggregate(Max('sequence'))
-					if temp['sequence__max']:
-						post.sequence = temp['sequence__max'] +1
-					else:
-						post.sequence = 1;
-			post.save()
-			return HttpResponse("Submission Successful. Your Content Will be published by admin. Thank You.")
+						temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False ).aggregate(Max('sequence'))
+						if temp['sequence__max']:
+							post.sequence = temp['sequence__max'] +1
+						else:
+							post.sequence = 1;
+					post.save()
+					return HttpResponseRedirect("/subjects" + post.url + "author/" + post.author.username)
+				else:
+					post.save()
+					return HttpResponseRedirect("/dashboard/posts/pending/")
 		else:
 			print form.errors
 	else:
@@ -271,39 +293,42 @@ def test(request):
 	return HttpResponse("thank you")			
 
 
-@user_passes_test(lambda u: u.is_staff)
+@login_required
 def create_category(request):
 	'''
 	This view creates new category.
 	If accessed by GET request than empty 'CategoryForm' is displayed.
 	If POST request than a new post is created with the data submitted.
 	'''
-
-	context = RequestContext(request)
+	if request.user.is_superuser:
+		context = RequestContext(request)
 	
-	if request.method == 'POST':
-		form = CategoryForm(request.POST)
-		if form.is_valid():
+		if request.method == 'POST':
+			form = CategoryForm(request.POST)
+			if form.is_valid():
 				
-			new_category = form.save(commit=False)
+				new_category = form.save(commit=False)
 
-			parent = new_category.parent	
-			try:
-				new_category_created, created = Category.objects.get_or_create( name=new_category.name,url=create_url(parent.url, new_category.name),parent=new_category.parent,defaults={'lt':parent.rt, 'rt':parent.rt+1, 'level':parent.level+1, 'date_time':timezone.now(), 'published':True, 'description':new_category.description} )
-				if created:
-					Category.objects.filter(lt__gt=parent.rt).order_by('-lt').update(lt=F('lt')+2,rt=F('rt')+2)
-					Category.objects.filter(lt__lte=parent.lt, rt__gte=parent.rt).order_by('lt').update(rt=F('rt')+2)
-					return HttpResponse("Category added successfully")
-				else:
-					return HttpResponse("Category not added because same Category already exist plz check db")
-			except Category.MultipleObjectsReturned:
-					return HttpResponse("There are already multiple Category with this name (db error)")
+				parent = new_category.parent	
+				try:
+					new_category_created, created = Category.objects.get_or_create( name=new_category.name,url=create_url(parent.url, new_category.name),parent=new_category.parent,defaults={'lt':parent.rt, 'rt':parent.rt+1, 'level':parent.level+1, 'date_time':timezone.now(), 'published':True, 'description':new_category.description} )
+					if created:
+						Category.objects.filter(lt__gt=parent.rt).order_by('-lt').update(lt=F('lt')+2,rt=F('rt')+2)
+						Category.objects.filter(lt__lte=parent.lt, rt__gte=parent.rt).order_by('lt').update(rt=F('rt')+2)
+						return HttpResponse("Category added successfully")
+					else:
+						return HttpResponse("Category not added because same Category already exist plz check db")
+				except Category.MultipleObjectsReturned:
+						return HttpResponse("There are already multiple Category with this name (db error)")
+			else:
+				print form.errors
 		else:
-			print form.errors
+			form = CategoryForm(initial={'name':'', 'description':''})
+		return render_to_response('content_management/content_management_create_category.html', {'form':form}, context)
+	
 	else:
-		form = CategoryForm(initial={'name':'', 'description':''})
-	return render_to_response('content_management/content_management_create_category.html', {'form':form}, context)
-		
+		raise PermissionDenied
+
 def create_url(parent_url, current_url):
 	url = slugify_url(parent_url + current_url)
 	return url
