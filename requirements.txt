@@ -7,3 +7,4 @@ static==0.4
 wsgiref==0.1.2
 whitenoise==1.0.6
 django-dajaxice==0.7
+sendgrid>=0.5.0

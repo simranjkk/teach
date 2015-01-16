@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/', include('allauth.urls')),
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
-	url(r'^$', views.index),
+	url(r'^$', TemplateView.as_view(template_name="content_management/content_management_index.html")),
 	url(r'^', include('content_management.urls')),
 	
 )

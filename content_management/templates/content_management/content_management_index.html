@@ -9,9 +9,11 @@
 		<div class="col-sm-3 col-sm-offset-3">
 			<select id="combo1" style="margin-top:10px;" onchange="Dajaxice.content_management.update_subcategories(my_callback, {'category_id':this.value})" size="1" class="form-control" >
 				<option value="0">Select Topic</option>
-				{% if level1_categories %}
-				{% for category in level1_categories %}
+				{% if categories %}
+				{% for category in categories %}
+				{% if category.level == 1 %}
 				<option value={{ category.id }}>{{ category.name }}</option>
+				{% endif %}
 				{% endfor %}
 				{% endif %}
 			</select>

@@ -34,7 +34,7 @@ class Post(models.Model):
 	date_time_last_modified = models.DateTimeField("Last Modified Time")
 	title = models.CharField("Title of the post", max_length=70)
 	metadata = models.CharField("Metadata for seo", max_length=140, blank=True)
-	post_name = models.CharField("Name", max_length=100)#used in url
+	post_name = models.CharField("Name", max_length=100)#used in url... apply indexing
 	content = models.TextField("Content", blank=True)
 	excerpt = models.CharField("Excerpt for hidden posts or search results", max_length=500, blank=True)
 	published = models.BooleanField("Published or not", default=False)
@@ -57,15 +57,23 @@ class PostForm(ModelForm):
 	'''
 
 	def __init__(self, *args, **kwargs):
+		self.author = kwargs.pop('author',None)
 		super(PostForm, self).__init__(*args, **kwargs)
-		self.fields['category'] = forms.ModelChoiceField( queryset=Category.objects.filter(lt__gt=1, rt=F('lt')+1).order_by('lt'))
 
 	class Meta:
 		model = Post
 		fields = ['title', 'metadata', 'post_name', 'excerpt', 'category', 'content']
 
-
-
+	def clean(self):
+		cleaned_data = super(PostForm, self).clean()
+		post_name = cleaned_data.get("post_name")
+		category = cleaned_data.get("category")
+		if Post.objects.filter( category = category, author = self.author, post_name = post_name, draft=False, trash=False, hidden = False).exists(): 
+			error = u"Post with same name is already published or is in request queue"	
+		
+			self._errors["post_name"] = self.error_class([error])
+			del cleaned_data["post_name"]
+		return cleaned_data #this statement is not required in django1.7
 
 class CategoryForm(ModelForm):
 	'''
