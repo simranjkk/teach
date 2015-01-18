@@ -123,6 +123,7 @@ INSTALLED_APPS = (
 	'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
 
 )
 
@@ -157,10 +158,21 @@ AUTHENTICATION_BACKENDS = (# Needed to login by username in Django admin regardl
                 "allauth.account.auth_backends.AuthenticationBackend",
             )
 
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 LOGIN_REDIRECT_URL = '/'
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_PROVIDERS = {
     'facebook':{ 'SCOPE': ['email', 'publish_stream'],
              'METHOD': 'js_sdk'
+        },
+     'google': { 'SCOPE': ['profile', 'email'],
+	'AUTH_PARAMS': {'access_type':'online'}}
         }
-        }
+
+
+
+
+#For django-dajaxice
+DAJAXICE_XMLHTTPREQUEST_JS_IMPORT = False

@@ -4,6 +4,7 @@ from content_management import forms
 urlpatterns = patterns('',
 	url(r'^create/post/$', views.create_post, name='create_post'),
     url(r'^edit/post/(?P<post_id>\d+)/$', views.edit_post, name='edit_post'),
+    url(r'^upload/', views.upload),
     url(r'^create/category/$', views.create_category, name='create_category'),
     url(r'^test/', views.test, name='test'),
     url(r'^dashboard/posts/(?P<post_type>\w+)/$', views.dashboard_posts),

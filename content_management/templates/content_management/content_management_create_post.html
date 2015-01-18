@@ -123,21 +123,266 @@
 		</form>
 	</div>		
 
+<div id="dropbox" style="height:250px; border:2px dashed red;"></div>
+
+    <h1>Upload a file straight to rackspace</h1>
+
+    <p id="url_upload" > </p>
+    <label>Pick a file to upload
+        <input id="upfile" type="file" name="upfile" onchange="Dajaxice.content_management.return_upload_url(upload_file, {'filename':this.files[0].name})"/>
+    </label>
+
+    <div id="progress-bar" class="progress">
+        <div class="progress-bar"></div>
+    </div>
+
+    <div id="download_url" class="collapse">
+        <p>Download URL: {download_url}&amp;filename=jokes-about-your-mom.pdf
+        <p><a class="btn btn-default" href="{download_url}&filename=jokes-about-your-mom.pdf">DOWNLOAD</a>
+    </div>
+
+
 
 
 
 {% endblock %}
 {% block scripts %}
 
-<script> 
+<script type="text/javascript"> 
+
+
+// Custom jQuery xhr instance to support our progress bar.
+
+ var xhr_with_progress = function() {
+alert("hello");
+     var xhr = new XMLHttpRequest();
+     xhr.upload.addEventListener("progress",
+         function(evt) {
+             if (!evt.lengthComputable) return;
+             var percentComplete = evt.loaded / evt.total;
+             $("#progress-bar div.progress-bar").css('width', String(100*percentComplete) + "%");
+         }, false);
+     return xhr;
+ };
+
+
+
+
+
+$.support.cors = true;
+function upload_file(files){
+        
+        var file = files[0];
+        console.log(files);
+
+        
+        alert(file)
+        $.ajax({
+	 xhr: xhr_with_progress,
+            url:"{{upload_url}}",
+            type: 'PUT',
+            data: file,
+            cache: false,
+            contentType: false,
+            processData: false,
+
+
+            success: function (data) {
+                alert("upload complete");
+                console.debug('Upload complete -- do what you want here');
+                $("div#download_url").collapse('show');
+            },
+
+            error: function (data) {
+                console.log(data)
+            },
+        });
+    
+}
+
+
+
+
+
+
+
+
+window.addEventListener("dragover",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+window.addEventListener("drop",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+
+
+var dropbox = document.getElementById("dropbox"); 
+dropbox.addEventListener("drop",drop,false);
+function drop(evt){
+alert("detected");
+evt.stopPropagation();
+evt.preventDefault();
+ 
+var files = evt.dataTransfer.files;
+ 
+// Only call the handler if 1 or more files was dropped.
+	upload_file(files);
+}
+/*console.log(files);
+
+        
+        alert(files[0])
+        $.ajax({
+            url:"{{upload_url}}",
+            type: 'PUT',
+            data: files[0],
+            cache: false,
+            contentType: false,
+            processData: false,
+
+
+            success: function (data) {
+                alert("upload complete");
+                console.debug('Upload complete -- do what you want here');
+                $("div#download_url").collapse('show');
+            },
+
+            error: function (data) {
+                console.log(data)
+            },
+        });
+
+
+
+}
+
+
+
+$.support.cors = true;
+function upload_file(files){
+        
+        var file = files[0];
+        console.log(files);
+
+        
+        alert(file)
+        $.ajax({
+            url:"{{upload_url}}",
+            type: 'PUT',
+            data: file,
+            cache: false,
+            contentType: false,
+            processData: false,
+
+
+            success: function (data) {
+                alert("upload complete");
+                console.debug('Upload complete -- do what you want here');
+                $("div#download_url").collapse('show');
+            },
+
+            error: function (data) {
+                console.log(data)
+            },
+        });
+    
+}
+
+
+
+
 function my_callback(data){
     Dajax.process(data);
             $('#id_category').prop("disabled", false);
         }
+*/
+
+/*// Custom jQuery xhr instance to support our progress bar.
+var xhr_with_progress = function() {
+    var xhr = new window.XMLHttpRequest();
+    xhr.upload.addEventListener("progress",
+        function(evt) {
+            if (!evt.lengthComputable) return;
+            var percentComplete = evt.loaded / evt.total;
+            $("#progress-bar div.progress-bar").css('width', String(100*percentComplete) + "%");
+        }, false);
+    return xhr;
+};
+
+
+
+
+
+$.support.cors = true;
+function upload_file(data){
+	Dajax.process(data);
+
+	
+        var file = $("#upfile").val;
+	console.log(data);
+
+	var file = document.getElementById('upfile').files[0];
+	
+        alert(file)
+        $.ajax({
+            url:$('#url_upload').text(),
+            type: 'PUT',
+            data: file,
+            cache: false,
+            contentType: false,
+            processData: false,
+
+
+            success: function (data) {
+		alert("upload complete");
+                console.debug('Upload complete -- do what you want here');
+                $("div#download_url").collapse('show');
+            },
+
+            error: function (data) {
+		console.log(data)
+            },
+        });
+    
+}*/
+
+/*
+$(document).ready(function() {{
+    if (!window['File']) {{
+        alert('Browser does not support HTML5 File API. Cannot continue.');
+        return;
+    }}
+
+    $("#upfile").on('change', function (e) {{
+        var file = this.files[0];
+        alert(this.files[0].name)
+        $.ajax({{
+            xhr: xhr_with_progress,
+            url: '{upload_url}',
+            type: 'PUT',
+            data: file,
+            cache: false,
+            contentType: false,
+            processData: false,
+
+            success: function (data) {{
+                console.debug('Upload complete -- do what you want here');
+                $("div#download_url").collapse('show');
+            }},
+
+            error: function (data) {{
+            }}
+        }});
+    }});
+
+}});
+*/
+
 
 </script>
 
 
-<script type="text/javascript" src="{% static "dajax/jquery.dajax.core.js" %}"></script>
+<!--<script type="text/javascript" src="{% static "dajax/jquery.dajax.core.js" %}"></script>-->
 
 {% endblock %}

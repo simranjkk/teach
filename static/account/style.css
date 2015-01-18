@@ -24,12 +24,12 @@ input[type='email'] {
     font-size:  14px;
 }
 .fb {
-    background: url('/static/account/fb_200.png') no-repeat center top;
+    background: url('/static/account/fb.png') no-repeat center top;
     box-shadow: 2px 2px 8px rgba(0,0,0,.7);
     border-radius: 5px;
     width: 198px;
     height: 37px;
-    margin: 80px auto;
+    margin: 10px auto;
     overflow: hidden;
 }
 .inset {

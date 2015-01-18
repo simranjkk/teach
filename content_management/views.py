@@ -10,8 +10,20 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 import re
 from django.utils import timezone
+import pyrax, os
 
-
+def upload(request):
+	if request.method == "POST":
+		print request.POST
+		print request.FILES
+		pyrax.set_setting("identity_type", "rackspace")
+		pyrax.set_default_region('HKG')
+		pyrax.set_credentials('teachoo','b705ba1b54364caf8c057941a0171dd4')
+		container = pyrax.cloudfiles.get_container("images")
+		obj = container.store_object("i", request.FILES["img"])
+		return HttpResponse("thanks for uploading image")
+	else:
+		return render_to_response('content_management/upload.html',{},RequestContext(request))
 
 def slugify_url( url ):
 	url = url.replace(' ', "-").replace('_','-')
@@ -242,6 +254,18 @@ def create_post(request):
     If accessed by GET request than empty 'PostForm' is displayed.
     If POST request than a new post is created with the data submitted.
     '''
+	
+	pyrax.set_setting("identity_type", "rackspace")
+        pyrax.set_default_region('HKG')
+        pyrax.set_credentials(os.environ["RACKSPACE_USERNAME"],os.environ["RACKSPACE_API_KEY"])
+        upload_container = pyrax.cloudfiles.get_container("post_images")
+        upload_container.set_metadata({'Access-Control-Allow-Origin': 'http://localhost:8000'})
+
+        upload_url = pyrax.cloudfiles.get_temp_url(upload_container, "jaspre", 60*60, method='PUT')
+
+
+
+
 
 	context = RequestContext(request)
 	if request.method == 'POST':
@@ -287,7 +311,7 @@ def create_post(request):
 			print form.errors
 	else:
 		form=PostForm(initial={'title':'', 'post_name':'', 'excerpt':'', 'metadata':'', 'content':''})
-       	return render_to_response('content_management/content_management_create_post.html', {'form':form}, context)
+       	return render_to_response('content_management/content_management_create_post.html', {'form':form, 'upload_url':upload_url}, context)
 
 def test(request):
 	return HttpResponse("thank you")			

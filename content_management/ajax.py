@@ -6,6 +6,7 @@ from content_management.models import Category
 from dajaxice.utils import deserialize_form
 from datetime import datetime
 from django.db.models import Max, F
+import pyrax,os
 
 @dajaxice_register
 def update_subcategories(request, category_id):
@@ -40,4 +41,18 @@ def update_parent_categories(request, category_id):
     dajax.assign('#id_category','innerHTML',''.join(out))
 
     return dajax.json()
+
+@dajaxice_register
+def return_upload_url(request, filename):
+	dajax = Dajax()
+	pyrax.set_setting("identity_type", "rackspace")
+	pyrax.set_default_region('HKG')
+	pyrax.set_credentials(os.environ["RACKSPACE_USERNAME"],os.environ["RACKSPACE_API_KEY"])
+	upload_container = pyrax.cloudfiles.get_container("post_images")
+	upload_container.set_metadata({'Access-Control-Allow-Origin': 'http://localhost:8000'})
+
+	upload_url = pyrax.cloudfiles.get_temp_url(upload_container, filename, 60*60, method='PUT')
+	#dajax.add_data(upload_url, "upload_file")
+	dajax.assign('#url_upload', 'innerHTML',''.join(upload_url))
+	return dajax.json()
 

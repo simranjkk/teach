@@ -1,5 +1,5 @@
 {% extends "account/base.html" %}
-
+{% load static %}
 {% load i18n %}
 {% load account %}
 {% load url from future %}
@@ -7,6 +7,7 @@
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
+   <div> <a href="/accounts/google/login/" ><img src='{%static "account/google.png"%}' style="margin:30px auto 2px auto; display:block;"/></a></div>
     <a href="/accounts/facebook/login/"><div class="fb"></div></a>
     {% include "socialaccount/snippets/login_extra.html" %}
     <div class="inset">
