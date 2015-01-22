@@ -1,0 +1,73 @@
+{% extends "content_management/content_management_base.html" %}
+{% load static %}
+{% block stylesheets %}
+  <style>
+  #sortable { list-style-type: none; margin: 0; padding: 0; width: 100%; }
+  #sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em;  }
+  #sortable li span { position: absolute; margin-left: -1.3em; }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+  <script src="{% static 'html/js/jquery-1.10.2.min.js' %}"></script>
+  <script src="https://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+
+	<div class="container ">
+	<div class="row">
+		<div class="col-md-3">
+		<select id="main_categories" class="form-control">
+			 <option value="0">Select Category</option>
+		{% for category in categories %}
+			{% if category.level == 1 %}
+			<option value="" data-lt="{{category.lt}}" data-rt="{{category.rt}}">{{category.name}}</option>
+			{% endif %}
+		{% endfor %}
+		</select>
+		<select id="leaf_categories" class="form-control" disabled>
+			<option value="0">Select Sub-Category</select>
+		</select>
+
+		</div>
+
+		<div class= "col-md-9">
+	<!--	<h3 ><u><i><strong>{{ posts.0.category.url }}</strong></i></u></h3>-->
+	<ul id="sortable">
+	</ul>
+<form id="sequence" action="/reorder/" method="POST">
+	{% csrf_token %}
+	<input type="hidden" id="category_id" name="category_id" value="{{ posts.0.category.id }}" />
+	<input type="hidden" id="sequence_hash" name="sequence_hash" value="" />
+	<input type="submit" value="Update Sequence" />
+</form></div></div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+  
+  <script>
+
+
+		
+$("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){data="<option value=0>Select Sub-Category</option>" + data;$("#leaf_categories").html(data); $("#leaf_categories").prop("disabled",false);console.log(data);});})
+
+$("#leaf_categories").change(function(){var selected=$("#leaf_categories :selected");$.get('/postlist/',{"category_id":selected.val()} , function(data){$("#sortable").html(data);$("#category_id").val(selected.val());console.log(data);});})
+  $(function() {
+    $( "#sortable" ).sortable({axis:"y", revert:true, stop: function( event, ui ){}});
+    $( "#sortable" ).disableSelection();
+   
+  $( "#sortable" ).on( "sortstop", function( event, ui ) { var sorted = $( "#sortable" ).sortable( "serialize", { key:"post_name" } ); console.log(sorted);} );  
+     
+       
+  });
+ $("#sequence").submit(function(event){
+		console.log("updating sequence");
+		hash = $("#sortable").sortable("toArray");	
+		$("#sequence_hash").val(hash);
+		console.log($("#sequence_hash").val());
+		return true;
+
+		});
+  </script>
+{% endblock %}

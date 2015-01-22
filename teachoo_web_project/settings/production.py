@@ -1,6 +1,3 @@
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'qa2jukrg3!nb7@4)hs30yp*#zly11g%avkn5#*+v4fqb&l_0%)'
-
 DATABASES = { 
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.

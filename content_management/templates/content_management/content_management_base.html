@@ -2,12 +2,10 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
-{% load dajaxice_templatetags %}
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> {% block head_title %} Teachoo.com {% endblock %}</title>
-	{% dajaxice_js_import %}
     <link rel="stylesheet" type="text/css" href="{% static "html/bootstrap/css/bootstrap.min.css" %}"/>
     <link rel="stylesheet" type="text/css" href="{% static "html/font-awesome/css/font-awesome.min.css" %}" />
     <script type="text/javascript" src="{% static "html/js/jquery-1.10.2.min.js" %}"></script>

@@ -65,7 +65,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'dajaxice.finders.DajaxiceFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
@@ -115,9 +114,6 @@ INSTALLED_APPS = (
     'content_management',
     #'django.contrib.comments',
 
-    'dajaxice',
-    'dajax',
-
 	# for allauth
 	'allauth',
 	'allauth.account',
@@ -139,11 +135,6 @@ TEMPLATE_CONTEXT_PROCESSORS = ( #Required by allauth template tags
                 "django.contrib.auth.context_processors.auth",
 				# for content_management
                 "content_management.context_processors.navbar_subjects",
-				# for django-dajaxice
-				'django.core.context_processors.debug',
-                'django.core.context_processors.media',
-                'django.core.context_processors.static',
-                'django.contrib.messages.context_processors.messages'
                 )
 
 
@@ -173,6 +164,6 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = os.environ["SECRET_KEY"]
 
-#For django-dajaxice
-DAJAXICE_XMLHTTPREQUEST_JS_IMPORT = False

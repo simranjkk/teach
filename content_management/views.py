@@ -8,23 +8,71 @@ from django.http import Http404
 from django.db.models import F, Min, Max, Count
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-import re
+import re, json
 from django.utils import timezone
 import pyrax, os
+from django.core import serializers
 
-def upload(request):
-	if request.method == "POST":
-		print request.POST
-		print request.FILES
-		pyrax.set_setting("identity_type", "rackspace")
-		pyrax.set_default_region('HKG')
-		pyrax.set_credentials('teachoo','b705ba1b54364caf8c057941a0171dd4')
-		container = pyrax.cloudfiles.get_container("images")
-		obj = container.store_object("i", request.FILES["img"])
-		return HttpResponse("thanks for uploading image")
+def leafCategoriesHtml(request):
+	"""updates leaf categories select list. Main Category lt and rt values are send using ajax $.get is used - createpost and reorder page"""
+
+	if request.method=="GET":
+		leaf_categories = leafCategories(request.GET['category_lt'], request.GET['category_rt'])
+		if leaf_categories:
+			options=''
+			for category in leaf_categories:
+				options+="<option value=" + str(category.id) + " >" + category.url.split("/",2)[2] + "</option>"
+
+			return HttpResponse(options)
+		else:
+			return 
 	else:
-		return render_to_response('content_management/upload.html',{},RequestContext(request))
+		return
+	
 
+def leafCategories(category_lt, category_rt):
+	leaf_categories =  Category.objects.filter(lt__gt=category_lt, rt__lt=category_rt, rt=F('lt')+1).order_by('lt')
+	return leaf_categories
+	
+def subCategoriesHtml(request):
+	"""updates level 2 categories on home page."""
+
+	if request.method=="GET":
+		subCategories = subcategories(request.GET["category_id"])
+		if subCategories:
+			options=''
+			for category in subCategories:
+				options+="<option value=\"/subjects" + str(category.url) + "\">" + category.name + "</option>"
+			return HttpResponse(options)
+		else:
+			return
+	else:
+		return
+
+def postHtml(request):
+	"""creates list of posts in a category for ordering on reorder page """
+
+	if request.method == "GET":
+		distinct_posts = posts(request.GET["category_id"]).distinct('sequence') 	
+		listItems=''
+		for post in distinct_posts:
+			listItems+= '<li class=\"ui-state-default\" id=\"id_' + post.post_name + '\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>' + post.post_name + '</li>'
+		return HttpResponse(listItems)
+	
+	
+def reorder(request):	
+	if request.method == "POST":
+		print request.POST	
+		i=1
+		post_name_hash=request.POST['sequence_hash'].split(",");
+		for post_name in post_name_hash:
+			post_name=post_name[3:]
+			Post.objects.filter(post_name=post_name, published=True, category_id=request.POST['category_id']).update(sequence=i)
+			i=i+1
+		return HttpResponse("thank you")
+	if request.method == "GET":
+		return render_to_response('content_management/content_management_reorder_post.html', {}, RequestContext(request))
+	
 def slugify_url( url ):
 	url = url.replace(' ', "-").replace('_','-')
 	url = url.lower()
@@ -255,16 +303,6 @@ def create_post(request):
     If POST request than a new post is created with the data submitted.
     '''
 	
-	pyrax.set_setting("identity_type", "rackspace")
-        pyrax.set_default_region('HKG')
-        pyrax.set_credentials(os.environ["RACKSPACE_USERNAME"],os.environ["RACKSPACE_API_KEY"])
-        upload_container = pyrax.cloudfiles.get_container("post_images")
-        upload_container.set_metadata({'Access-Control-Allow-Origin': 'http://localhost:8000'})
-
-        upload_url = pyrax.cloudfiles.get_temp_url(upload_container, "jaspre", 60*60, method='PUT')
-
-
-
 
 
 	context = RequestContext(request)
@@ -284,8 +322,8 @@ def create_post(request):
 				post.draft = True
 				post.save()
 				return HttpResponseRedirect("/dashboard/posts/drafts/")
-			elif 'publish' in request.POST:
-				temp = Post.objects.filter( category = post.category, author = post.author, published=True, draft=False, trash=False ).aggregate(Max('user_sequence')) 
+			elif 'publish' in request.POST or 'publishandcreate' in request.POST:
+				temp = Post.objects.filter( category = post.category, author = post.author, draft=False, trash=False ).aggregate(Max('user_sequence')) 
 				if temp['user_sequence__max']:
 					post.user_sequence = temp['user_sequence__max']+1
 				else:
@@ -303,7 +341,10 @@ def create_post(request):
 						else:
 							post.sequence = 1;
 					post.save()
-					return HttpResponseRedirect("/subjects" + post.url + "author/" + post.author.username)
+					if 'publish' in request.POST:
+						return HttpResponseRedirect("/subjects" + post.url + "author/" + post.author.username)
+					elif "publishandcreate" in request.POST:
+						return HttpResponseRedirect("/create/post/")
 				else:
 					post.save()
 					return HttpResponseRedirect("/dashboard/posts/pending/")
@@ -311,10 +352,14 @@ def create_post(request):
 			print form.errors
 	else:
 		form=PostForm(initial={'title':'', 'post_name':'', 'excerpt':'', 'metadata':'', 'content':''})
-       	return render_to_response('content_management/content_management_create_post.html', {'form':form, 'upload_url':upload_url}, context)
+       	return render_to_response('content_management/content_management_create_post.html', {'form':form}, context)
 
-def test(request):
-	return HttpResponse("thank you")			
+def generateUploadUrl(request):
+	if request.is_ajax():
+		from teachoo_web_project.urls import post_images_container
+		UploadUrl = pyrax.cloudfiles.get_temp_url(post_images_container, request.GET['filename'], 60, method='PUT')
+		data={"UploadUrl":UploadUrl}
+		return HttpResponse(json.dumps(data), content_type='application/json')			
 
 
 @login_required

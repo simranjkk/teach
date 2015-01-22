@@ -2,12 +2,11 @@
 {% load static %}
 {% block body %}
 
-<script type="text/javascript" src="{% static "dajax/jquery.dajax.core.js" %}"></script>
 <div class="container-fluid" style="text-align:center; padding-top:150px; background-image:url('{% static "html/img/learn.jpg" %}'); background-repeat:no-repeat; background-position:center top;" >
 	<div class="row" style="background-image:'{% static "html/img/learn.jpg" %}'">
 		<h1 style="margin-top:50px; color:blue;">I want to study ...</h1>
 		<div class="col-sm-3 col-sm-offset-3">
-			<select id="combo1" style="margin-top:10px;" onchange="Dajaxice.content_management.update_subcategories(my_callback, {'category_id':this.value})" size="1" class="form-control" >
+			<select id="main_categories" style="margin-top:10px;"  size="1" class="form-control" >
 				<option value="0">Select Topic</option>
 				{% if categories %}
 				{% for category in categories %}
@@ -20,7 +19,7 @@
 		</div>
 		
 		<div class="col-sm-3">
-			<select id="combo2" style="margin-top:10px;" size="1" class="form-control" disabled>
+			<select id="subcategories" style="margin-top:10px;" size="1" class="form-control" disabled>
 				<option>Select Sub-Topic </option>
 			</select>
 		</div>
@@ -56,15 +55,9 @@
 </div>
 
 <script> 
-function my_callback(data){
-	Dajax.process(data);
-			$('#combo2').prop("disabled", false);
-  			$('#go').attr('href', $('#combo2').val())
-		}
- $('#combo2, #combo1').on('change', function() {
-             $('#go').attr('href', $('#combo2').val())
-         })
+$("#main_categories").change(function(){ $.get('/updatesubcategories/',{"category_id":this.value},function(data){console.log(data);var subcategories=$("#subcategories"); subcategories.html(data); subcategories.prop("disabled", false);$("#go").attr('href',subcategories.val());});});
 
+$("#main_categories,#subcategories").change(function(){$("#go").attr('href',$("#subcategories").val());});
 </script>
 {% endblock %}
 

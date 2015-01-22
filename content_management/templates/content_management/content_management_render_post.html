@@ -19,7 +19,6 @@
 {% endblock %}
 
 {% block body %}
-<script type="text/javascript" src="{% static "dajax/jquery.dajax.core.js" %}"></script>
 
 	<div class="row">
 		{% if requested_posts %}
@@ -79,84 +78,7 @@
 				$(".pager #previous").attr("href",prev);
 				$(".pager #next").attr("href", next);
 			</script>
-			<!-------Comment Form Code Here---------------------------------------------------------
-			<form action="" method="post" id="my_form" accept-charset="utf-8">
-				{% csrf_token%}
-				{% for field in form %}
-					<div class="fieldWrapper">
-						{{field.errors }}
-						{{field}}
-					</div>
-				{% endfor %}
-				<p><input type="button" value="Send" onclick="add_comment();"></p>
-			</form>
-		-->	
 		</div>
 {% endif %}
 </div>
-{% endblock %}
-{% block scripts %}
-<!--Comment ajax dajax code -------------
-<script>
-function add_comment(){
-	Dajaxice.content_management.add_comment(Dajax.process,{'form':$('#my_form').serialize(true)});
-}
-</script>
--->
-<!--<script>
-					
-$(function(){
-				
-
-	$('#slide-submenu').on('click',function() {			        
-        $(this).closest('.list-group').fadeOut('slide',function(){
-        	$('.mini-submenu').fadeIn();	
-        });
-        
-      });
-
-	$('.mini-submenu').on('click',function(){		
-        $(this).next('.list-group').toggle('slide');
-        $('.mini-submenu').hide();
-	})
-})
-</script>
-<style>
-/* CSS used here will be applied after bootstrap.css */
-.mini-submenu{
-  display:none;  
-  background-color: rgba(0, 0, 0, 0);  
-  border: 1px solid rgba(0, 0, 0, 0.9);
-  border-radius: 4px;
-  padding: 9px;  
-  /*position: relative;*/
-  width: 42px;
-
-}
-
-.mini-submenu:hover{
-  cursor: pointer;
-}
-
-.mini-submenu .icon-bar {
-  border-radius: 1px;
-  display: block;
-  height: 2px;
-  width: 22px;
-  margin-top: 3px;
-}
-
-.mini-submenu .icon-bar {
-  background-color: #000;
-}
-
-#slide-submenu{
-  background: rgba(0, 0, 0, 0.45);
-  display: inline-block;
-  padding: 0 8px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-</style>
--->
 {% endblock %}

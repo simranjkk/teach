@@ -20,12 +20,12 @@
 
 
 
-<select id="combo1" style="margin-top:10px;" onchange="Dajaxice.content_management.update_parent_categories(my_callback, {'category_id':this.value})" size="1" class="form-control" >
+<select id="main_categories" style="margin-top:10px;"  size="1" class="form-control" >
                 <option value="0">Select Category</option>
                 {% if categories %}
                 {% for category in categories %}
 				{% if category.level == 1 %}
-                <option value={{ category.id }}>{{ category.name }}</option>
+                <option value="" data-lt={{ category.lt }} data-rt={{ category.rt }} >{{ category.name }}</option>
 				{% endif %}
                 {% endfor %}
                 {% endif %}
@@ -78,7 +78,7 @@
 			</div>
 
 			<textarea name="content" id="{{ form.content.id_for_label }}">
-			{{ form.content.value }}
+			{{ form.content.value }}k
 			</textarea>
 			<script src="http://cdn.ckeditor.com/4.4.3/full/ckeditor.js"></script>
 			<script>
@@ -118,28 +118,22 @@
 		<div class="col-md-2 text-center" style="padding-top:10px;">
 			<div><input type="submit" value="Publish" name="publish" class="btn btn-lg btn-success"/></div><br>	
 			<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-lg btn-primary"/></div><br>
-			<div><a href="/"><button type="button" class="btn btn-lg btn-danger">Discard</button></a></div>
+			{% if request.user.is_staff %}
+			<div><input type="submit" value="Publish and Create Another" name="publishandcreate" class="btn btn-lg btn-success"/></div><br>	
+			{% endif %}
 		</div>
 		</form>
 	</div>		
 
-<div id="dropbox" style="height:250px; border:2px dashed red;"></div>
+<div id="dropbox" class="container" style="height:250px; border:2px dashed red;">
+<h1>"Only [dot] and alphanumeric characters are allowed in file name. No spaces are allowed in filename."</h1>
+</div>
 
-    <h1>Upload a file straight to rackspace</h1>
-
-    <p id="url_upload" > </p>
-    <label>Pick a file to upload
-        <input id="upfile" type="file" name="upfile" onchange="Dajaxice.content_management.return_upload_url(upload_file, {'filename':this.files[0].name})"/>
-    </label>
 
     <div id="progress-bar" class="progress">
         <div class="progress-bar"></div>
     </div>
 
-    <div id="download_url" class="collapse">
-        <p>Download URL: {download_url}&amp;filename=jokes-about-your-mom.pdf
-        <p><a class="btn btn-default" href="{download_url}&filename=jokes-about-your-mom.pdf">DOWNLOAD</a>
-    </div>
 
 
 
@@ -149,12 +143,15 @@
 {% block scripts %}
 
 <script type="text/javascript"> 
+//Ajax to load leaf categories on selecting main category
+$("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){$("#id_category").html(data); $('#id_category').prop("disabled", false);console.log(data);});})
 
+
+//Code for Image upload
 
 // Custom jQuery xhr instance to support our progress bar.
 
- var xhr_with_progress = function() {
-alert("hello");
+var xhr_with_progress = function() {
      var xhr = new XMLHttpRequest();
      xhr.upload.addEventListener("progress",
          function(evt) {
@@ -169,44 +166,9 @@ alert("hello");
 
 
 
-$.support.cors = true;
-function upload_file(files){
-        
-        var file = files[0];
-        console.log(files);
+$.support.cors = true;//For cross origin transfer
 
-        
-        alert(file)
-        $.ajax({
-	 xhr: xhr_with_progress,
-            url:"{{upload_url}}",
-            type: 'PUT',
-            data: file,
-            cache: false,
-            contentType: false,
-            processData: false,
-
-
-            success: function (data) {
-                alert("upload complete");
-                console.debug('Upload complete -- do what you want here');
-                $("div#download_url").collapse('show');
-            },
-
-            error: function (data) {
-                console.log(data)
-            },
-        });
-    
-}
-
-
-
-
-
-
-
-
+//Event listners to avoid default drag and drop reaction of browser
 window.addEventListener("dragover",function(e){
   e = e || event;
   e.preventDefault();
@@ -217,172 +179,86 @@ window.addEventListener("drop",function(e){
 },false);
 
 
+//Event listners to listen drag and drop image in box
 var dropbox = document.getElementById("dropbox"); 
+dropbox.addEventListener("dragover",function(e){
+  e = e || event;
+  e.preventDefault();
+  $('#dropbox').css("background-color","gray");
+},false);
+
+window.addEventListener("dragleave",function(e){
+  e = e || event;
+  e.preventDefault();
+  $('#dropbox').css("background-color","white"); 
+},false);
+
+
 dropbox.addEventListener("drop",drop,false);
 function drop(evt){
+$('#dropbox').css("background-color","white"); 
 alert("detected");
 evt.stopPropagation();
 evt.preventDefault();
  
 var files = evt.dataTransfer.files;
- 
-// Only call the handler if 1 or more files was dropped.
-	upload_file(files);
+var count = files.length;
+	if(count>0){
+		for(var i=0;i<count;i++){
+handleFiles(files[i]);
 }
-/*console.log(files);
-
-        
-        alert(files[0])
-        $.ajax({
-            url:"{{upload_url}}",
-            type: 'PUT',
-            data: files[0],
-            cache: false,
-            contentType: false,
-            processData: false,
-
-
-            success: function (data) {
-                alert("upload complete");
-                console.debug('Upload complete -- do what you want here');
-                $("div#download_url").collapse('show');
-            },
-
-            error: function (data) {
-                console.log(data)
-            },
-        });
-
-
-
+}
 }
 
+function handleFiles(file){
 
-
-$.support.cors = true;
-function upload_file(files){
-        
-        var file = files[0];
-        console.log(files);
-
-        
-        alert(file)
-        $.ajax({
-            url:"{{upload_url}}",
-            type: 'PUT',
-            data: file,
-            cache: false,
-            contentType: false,
-            processData: false,
-
-
-            success: function (data) {
-                alert("upload complete");
-                console.debug('Upload complete -- do what you want here');
-                $("div#download_url").collapse('show');
-            },
-
-            error: function (data) {
-                console.log(data)
-            },
-        });
-    
-}
-
-
-
-
-function my_callback(data){
-    Dajax.process(data);
-            $('#id_category').prop("disabled", false);
-        }
-*/
-
-/*// Custom jQuery xhr instance to support our progress bar.
-var xhr_with_progress = function() {
-    var xhr = new window.XMLHttpRequest();
-    xhr.upload.addEventListener("progress",
-        function(evt) {
-            if (!evt.lengthComputable) return;
-            var percentComplete = evt.loaded / evt.total;
-            $("#progress-bar div.progress-bar").css('width', String(100*percentComplete) + "%");
-        }, false);
-    return xhr;
-};
-
-
-
-
-
-$.support.cors = true;
-function upload_file(data){
-	Dajax.process(data);
-
+			var filename = file.name;
+			$.ajax({
+				type:'GET',
+				data:{"filename":file.name},
+				url:'/generateuploadurl/',
+				contentType:"application/json",
+				dataType:"json",
+				success: function(data){ 
+					if(data.UploadUrl){
+					/*	console.log("upload url successfully created for " + file.name + " file");*/
+						console.log(data.UploadUrl);
+						handleUpload(data.UploadUrl, file);
+					}
+				},
+				error: function(data){ 
+					console.log("error occured while creating upload url for " + file.name + ' file');
+					console.log(data);
+					
+				},
+			});
+		}			
 	
-        var file = $("#upfile").val;
-	console.log(data);
 
-	var file = document.getElementById('upfile').files[0];
-	
-        alert(file)
-        $.ajax({
-            url:$('#url_upload').text(),
-            type: 'PUT',
-            data: file,
-            cache: false,
-            contentType: false,
-            processData: false,
-
-
-            success: function (data) {
-		alert("upload complete");
-                console.debug('Upload complete -- do what you want here');
-                $("div#download_url").collapse('show');
-            },
-
-            error: function (data) {
-		console.log(data)
-            },
-        });
-    
-}*/
-
-/*
-$(document).ready(function() {{
-    if (!window['File']) {{
-        alert('Browser does not support HTML5 File API. Cannot continue.');
-        return;
-    }}
-
-    $("#upfile").on('change', function (e) {{
-        var file = this.files[0];
-        alert(this.files[0].name)
-        $.ajax({{
-            xhr: xhr_with_progress,
-            url: '{upload_url}',
-            type: 'PUT',
-            data: file,
-            cache: false,
-            contentType: false,
-            processData: false,
-
-            success: function (data) {{
-                console.debug('Upload complete -- do what you want here');
-                $("div#download_url").collapse('show');
-            }},
-
-            error: function (data) {{
-            }}
-        }});
-    }});
-
-}});
-*/
-
+function handleUpload(UploadUrl, file){
+	$.ajax({
+		xhr:xhr_with_progress,
+		url:UploadUrl,
+		type:'PUT',
+		data:file,
+		cache:false,
+		contentType:false,
+		processData:false,
+		success: function(data){
+			image="<img style=width:100% src=https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/" + file.name + ">";
+			console.log(image);
+			$('iframe').contents().find('body.cke_editable').contents().append(image);
+			
+			console.log( file.name + " successfully uploaded");
+		},
+		error: function(data){ 
+			console.log("error occured while uploading " + file.name );
+			console.log(data);
+		}
+	});	
+}
 
 </script>
 
-
-<!--<script type="text/javascript" src="{% static "dajax/jquery.dajax.core.js" %}"></script>-->
 
 {% endblock %}
