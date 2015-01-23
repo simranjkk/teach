@@ -12,6 +12,7 @@ import re, json
 from django.utils import timezone
 import pyrax, os
 from django.core import serializers
+from helper import *
 
 def leafCategoriesHtml(request):
 	"""updates leaf categories select list. Main Category lt and rt values are send using ajax $.get is used - createpost and reorder page"""
@@ -67,39 +68,31 @@ def reorder(request):
 		post_name_hash=request.POST['sequence_hash'].split(",");
 		for post_name in post_name_hash:
 			post_name=post_name[3:]
-			Post.objects.filter(post_name=post_name, published=True, category_id=request.POST['category_id']).update(sequence=i)
+			Post.objects.filter(post_name=post_name, published__isnull=False, category_id=request.POST['category_id']).update(sequence=i)
 			i=i+1
 		return HttpResponse("thank you")
 	if request.method == "GET":
 		return render_to_response('content_management/content_management_reorder_post.html', {}, RequestContext(request))
 	
-def slugify_url( url ):
-	url = url.replace(' ', "-").replace('_','-')
-	url = url.lower()
-	if not url.startswith('/'):
-		url = '/'+url
-	if not url.endswith('/'):
-		url = url + '/'
-	return url
 	
 def retrieve_post ( request, url, author_username=None):#store author username in post url which will make diff in url of categories and posts
 	context = RequestContext(request)
 	url = slugify_url(url)
 	if author_username is not None:
-		#requested_post = Post.objects.select_related('category').only('category__id').get( url = url, author__username = author_username, published = True )
-		requested_post = get_object_or_404( Post, url = url, author__username = author_username, published = True, draft = False, trash=False)
+		#requested_post = Post.objects.select_related('category').only('category__id').get( url = url, author__username = author_username, published__isnull = False )
+		requested_post = get_object_or_404( Post, url = url, author__username = author_username, published__isnull = False, draft = False, trash=False)
 		sibbling_posts = posts(requested_post.category_id)		 
 		return render_to_response('content_management/content_management_render_post.html', {'requested_post':requested_post, 'sibbling_posts':sibbling_posts }, context)
 
 	else:
-		requested_posts_count = Post.objects.filter( url = url, published = True, trash = False, draft = False).count()
+		requested_posts_count = Post.objects.filter( url = url, published__isnull = False, trash = False, draft = False).count()
 		if requested_posts_count == 0:
 			raise Http404
 		elif requested_posts_count == 1:
-			requested_post = Post.objects.select_related('author__username').only('author__username').get( url = url, published = True )
+			requested_post = Post.objects.select_related('author__username').only('author__username').get( url = url, published__isnull = False )
 			return HttpResponseRedirect('/subjects' + url + 'author/' +  requested_post.author.username )	
 		elif requested_posts_count >1:
-			requested_posts = Post.objects.filter( url = url, published = True)
+			requested_posts = Post.objects.filter( url = url, published__isnull = False)
 			return render_to_response('content_management/content_management_render_post.html', {'requested_posts':requested_posts }, context)
 		else:
 			raise Http404
@@ -108,7 +101,7 @@ def retrieve_category( request, url ):
 	context = RequestContext(request)
 	url = slugify_url(url)
 	try:
-		requested_category = Category.objects.get( url = url, published = True)
+		requested_category = Category.objects.get( url = url, published__isnull = False)
 		if (requested_category.rt == requested_category.lt + 1):
 			result_type = "post"
 			results = posts( requested_category.id )
@@ -134,7 +127,7 @@ def posts( category_id ):
 	This function returns list of all the posts in the category whose 'id' is equal to 'category_id'.
 	'''
 
-	posts = Post.objects.filter( category__id = category_id, published = True, draft = False, trash = False).order_by( 'sequence' )
+	posts = Post.objects.filter( category__id = category_id, published__isnull = False, draft = False, trash = False).order_by( 'sequence' )
 	return posts
 
 def check_key(key):
@@ -157,7 +150,7 @@ def delete_posts( request, delete_type ):
 					post=Post.objects.filter( id = post_id )
 				else:
 					post=Post.objects.filter( id = post_id, author = request.user )
-				post.update( trash = True, published = False, draft = False, user_sequence = 0, sequence = 0 )
+				post.update( trash = True, published = None, draft = False, user_sequence = 0, sequence = 0 )
 				count+=1
 				# TODO:send notification to admin that author __ has deleted his post
 	elif delete_type == 'delete':
@@ -167,7 +160,7 @@ def delete_posts( request, delete_type ):
 					post=Post.objects.filter( id = post_id )
 				else:
 					post=Post.objects.get( id = post_id, author = request.user )
-				post.update(trash=True, published=False, draft=False, hidden=True, user_sequence=0, sequence=0)
+				post.update(trash=True, published=None, draft=False, hidden=True, user_sequence=0, sequence=0)
 				count +=1
 				# TODO:send notification to admin that author __ has deleted his post
 		
@@ -195,22 +188,22 @@ def edit_post(request, post_id):
 					edited_post.url = create_url(edited_post.category.url, edited_post.post_name)
 					if 'draft' in request.POST:
 						edited_post.draft = True
-						edited_post.published = False
+						edited_post.published =None 
 						edited_post.trash = False
 						edited_post.user_sequence=0
 						edited_post.sequence=0
-					elif 'publish' in request.POST and post.published==False:
+					elif 'publish' in request.POST and post.published==None:
 						if request.user.is_staff:
-							edited_post.published = True
+							edited_post.published = timezone.now() 
 							edited_post.draft = False
 							edited_post.trash = False
-							temp = Post.objects.filter( category = edited_post.category, author = edited_post.author, published=True, draft=False, trash=False ).aggregate(Max('user_sequence')) 
+							temp = Post.objects.filter( category = edited_post.category, author = edited_post.author, published__isnull=False, draft=False, trash=False ).aggregate(Max('user_sequence')) 
 							edited_post.user_sequence = temp['user_sequence__max']+1
-							temp = Post.objects.filter( category = edited_post.category, published=True, draft=False, trash=False ).aggregate(Max('sequence'))
+							temp = Post.objects.filter( category = edited_post.category, published__isnull=False, draft=False, trash=False ).aggregate(Max('sequence'))
 							edited_post.sequence = temp['sequence__max'] +1
 							
 						else:
-							edited_post.published = False
+							edited_post.published = None
 							edited_post.draft = False
 							edited_post.trash = False
 					edited_post.save()
@@ -237,7 +230,7 @@ def set_draft( request ):
 	count=0
 	for key,post_id in request.POST.iteritems():
 		if check_key(key):
-			Post.objects.filter( id=post_id, author=request.user ).update( draft=True, published=False, trash=False, user_sequence=0, sequence=0 )
+			Post.objects.filter( id=post_id, author=request.user ).update( draft=True, published=None, trash=False, user_sequence=0, sequence=0 )
 			count +=1
 	warnings=[str(count) + 'posts sent to draft']
 	return warnings
@@ -255,14 +248,14 @@ def set_published( request ):
 			if check_key(key):
 				try:
 					post = Post.objects.get( id=post_id )
-					post.published = True
+					post.published = timezone.now() 
 					post.draft = False
 					post.trash = False
-					temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False, post_name = post.post_name )
+					temp = Post.objects.filter( category = post.category, published__isnull=False, draft=False, trash=False, post_name = post.post_name )
 					if temp:
 						post.sequence = temp[0].sequence
 					else:
-						temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False ).aggregate(Max('sequence'))
+						temp = Post.objects.filter( category = post.category, published__isnull=False, draft=False, trash=False ).aggregate(Max('sequence'))
 						if temp['sequence__max']:
 							post.sequence = temp['sequence__max'] +1
 						else:
@@ -330,12 +323,12 @@ def create_post(request):
 					post.user_sequence = 1;
 
 				if request.user.is_staff:
-					post.published = True
-					temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False, post_name = post.post_name )
+					post.published = timezone.now()
+					temp = Post.objects.filter( category = post.category, published__isnull=False, draft=False, trash=False, post_name = post.post_name )
 					if temp:
 						post.sequence = temp[0].sequence
 					else:
-						temp = Post.objects.filter( category = post.category, published=True, draft=False, trash=False ).aggregate(Max('sequence'))
+						temp = Post.objects.filter( category = post.category, published__isnull=False, draft=False, trash=False ).aggregate(Max('sequence'))
 						if temp['sequence__max']:
 							post.sequence = temp['sequence__max'] +1
 						else:
@@ -375,32 +368,23 @@ def create_category(request):
 		if request.method == 'POST':
 			form = CategoryForm(request.POST)
 			if form.is_valid():
-				
-				new_category = form.save(commit=False)
+				name = form.cleaned_data["name"]
+				parent = form.cleaned_data["parent"]	
+				url = form.cleaned_data["url"]
+				description = form.cleaned_data["description"]	
+				new_category = Category.objects.create_category(parent, name, url, description)
+				if new_category:
+					return HttpResponseRedirect("/subjects" + new_category.url)
+				else:
+					return HttpResponse("Some Problem occured. Try again later.")
 
-				parent = new_category.parent	
-				try:
-					new_category_created, created = Category.objects.get_or_create( name=new_category.name,url=create_url(parent.url, new_category.name),parent=new_category.parent,defaults={'lt':parent.rt, 'rt':parent.rt+1, 'level':parent.level+1, 'date_time':timezone.now(), 'published':True, 'description':new_category.description} )
-					if created:
-						Category.objects.filter(lt__gt=parent.rt).order_by('-lt').update(lt=F('lt')+2,rt=F('rt')+2)
-						Category.objects.filter(lt__lte=parent.lt, rt__gte=parent.rt).order_by('lt').update(rt=F('rt')+2)
-						return HttpResponse("Category added successfully")
-					else:
-						return HttpResponse("Category not added because same Category already exist plz check db")
-				except Category.MultipleObjectsReturned:
-						return HttpResponse("There are already multiple Category with this name (db error)")
-			else:
-				print form.errors
 		else:
-			form = CategoryForm(initial={'name':'', 'description':''})
+			form = CategoryForm(initial={'name':'', 'description':'', 'url':''})
 		return render_to_response('content_management/content_management_create_category.html', {'form':form}, context)
 	
 	else:
 		raise PermissionDenied
 
-def create_url(parent_url, current_url):
-	url = slugify_url(parent_url + current_url)
-	return url
 
 @user_passes_test(lambda u: u.is_staff)
 def delete_category(request):
@@ -410,13 +394,13 @@ def delete_category(request):
 	warnings=[]
 	flag=False
 	for category_id in request.POST.itervalues():
-		if Post.objects.filter(category_id=category_id, published=True).exists(): 
+		if Post.objects.filter(category_id=category_id, published__isnull=False).exists(): 
 			warnings.append="delete all posts in category id" + category_id
 			flag=True
 		if Category.objects.filter(parent_id=category.id).exists():
 			warnings.append="delete all the subcategories first form category id" + category_id
 			flag=True
-		if Post.objects.filter(category_id=category_id, published=False, trash=False, draft=False).exists():
+		if Post.objects.filter(category_id=category_id, published=None, trash=False, draft=False).exists():
 			warnings.append="clear all the pending publish requests realted to category id"+ category_id
 			flag=True
 	
@@ -451,21 +435,21 @@ def dashboard_posts(request, post_type, warnings=None):
 
 	if post_type=="published":
 		if request.user.is_superuser:
-			posts = Post.objects.filter( published=True, draft=False, trash=False ).order_by('category__lt', 'id')
+			posts = Post.objects.filter( published__isnull=False, draft=False, trash=False ).order_by('category__lt', 'id')
 		else:
-			posts = Post.objects.filter( author=request.user, published=True, draft=False, trash=False ).order_by('category__lt', 'user_sequence')
+			posts = Post.objects.filter( author=request.user, published__isnull=False, draft=False, trash=False ).order_by('category__lt', 'user_sequence')
 
 	elif post_type=="drafts":
-		posts = Post.objects.filter( author=request.user, draft=True, published=False, trash=False ).order_by('category__lt', 'id')
+		posts = Post.objects.filter( author=request.user, draft=True, published=None, trash=False ).order_by('category__lt', 'id')
 
 	elif post_type=="trash":
-		posts = Post.objects.filter( author=request.user, trash=True, published=False, draft=False, hidden=False ).order_by('category__lt', 'id')
+		posts = Post.objects.filter( author=request.user, trash=True, published=None, draft=False, hidden=False ).order_by('category__lt', 'id')
 
 	elif post_type=="pending":
 		if request.user.is_superuser:
-			posts = Post.objects.filter( published=False, draft=False, trash=False ).order_by('category__lt', 'id')
+			posts = Post.objects.filter( published=None, draft=False, trash=False ).order_by('category__lt', 'id')
 		else:
-			posts = Post.objects.filter( author=request.user, published=False, draft=False, trash=False ).order_by('category__lt', 'id')
+			posts = Post.objects.filter( author=request.user, published=None, draft=False, trash=False ).order_by('category__lt', 'id')
 
 	else:
 		raise Http404
