@@ -167,3 +167,11 @@ SOCIALACCOUNT_PROVIDERS = {
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.environ["SECRET_KEY"]
 
+#Email
+DEFAULT_FROM_EMAIL="no-reply@teachoo.com"
+# Sendgrid credentials
+EMAIL_HOST=os.environ["EMAIL_HOST"]
+EMAIL_HOST_USER=os.environ["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
+EMAIL_PORT=int(os.environ["EMAIL_PORT"])
+EMAIL_USE_TLS=os.environ["EMAIL_USE_TLS"]
