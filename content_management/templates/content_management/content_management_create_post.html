@@ -223,7 +223,7 @@ function handleFiles(file){
 					if(data.UploadUrl){
 					/*	console.log("upload url successfully created for " + file.name + " file");*/
 						console.log(data.UploadUrl);
-						handleUpload(data.UploadUrl, file);
+						handleUpload(data.UploadUrl, file, data.Filename);
 					}
 				},
 				error: function(data){ 
@@ -235,7 +235,7 @@ function handleFiles(file){
 		}			
 	
 
-function handleUpload(UploadUrl, file){
+function handleUpload(UploadUrl, file, Filename){
 	$.ajax({
 		xhr:xhr_with_progress,
 		url:UploadUrl,
@@ -245,7 +245,7 @@ function handleUpload(UploadUrl, file){
 		contentType:false,
 		processData:false,
 		success: function(data){
-			image="<img style=width:100% src=https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/" + file.name + ">";
+			image="<img style=width:100% src=https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/" + Filename + ">";
 			console.log(image);
 			$('iframe').contents().find('body.cke_editable').contents().append(image);
 			

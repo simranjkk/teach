@@ -13,7 +13,7 @@ from django.utils import timezone
 import pyrax, os
 from django.core import serializers
 from helper import *
-
+import uuid
 def leafCategoriesHtml(request):
 	"""updates leaf categories select list. Main Category lt and rt values are send using ajax $.get is used - createpost and reorder page"""
 
@@ -192,22 +192,28 @@ def edit_post(request, post_id):
 						edited_post.trash = False
 						edited_post.user_sequence=0
 						edited_post.sequence=0
-					elif 'publish' in request.POST and post.published==None:
-						if request.user.is_staff:
+					elif 'publish' in request.POST:
+						if request.user.is_staff and post.published==None:
 							edited_post.published = timezone.now() 
 							edited_post.draft = False
 							edited_post.trash = False
 							temp = Post.objects.filter( category = edited_post.category, author = edited_post.author, published__isnull=False, draft=False, trash=False ).aggregate(Max('user_sequence')) 
-							edited_post.user_sequence = temp['user_sequence__max']+1
+							if temp['user_sequence']:
+								edited_post.user_sequence = temp['user_sequence__max']+1
+							else:
+								edited_post.user_sequence = 1
 							temp = Post.objects.filter( category = edited_post.category, published__isnull=False, draft=False, trash=False ).aggregate(Max('sequence'))
-							edited_post.sequence = temp['sequence__max'] +1
+							if temp['sequence_max']:
+								edited_post.sequence = temp['sequence__max'] +1
+							else:
+								edited_post.sequence = 1
 							
-						else:
+						elif not request.user.is_staff:
 							edited_post.published = None
 							edited_post.draft = False
 							edited_post.trash = False
 					edited_post.save()
-					return HttpResponse("post edited. Thank YOu.")
+					return HttpResponse("Post edited.")
 	
 			else:
 				form = PostForm(instance = post)
@@ -218,7 +224,7 @@ def edit_post(request, post_id):
 		raise Http404	
 
 	except Post.MultipleObjectsReturned:
-		print "waheguru"
+		return HttpResponse("Error")
 		#TODO: send notification to admin about the issue with reference of post id
 
 
@@ -350,12 +356,13 @@ def create_post(request):
 def generateUploadUrl(request):
 	if request.is_ajax():
 		from teachoo_web_project.urls import post_images_container
-		UploadUrl = pyrax.cloudfiles.get_temp_url(post_images_container, request.GET['filename'], 60, method='PUT')
-		data={"UploadUrl":UploadUrl}
+		filename=str(uuid.uuid4()) + request.GET['filename']
+		UploadUrl = pyrax.cloudfiles.get_temp_url(post_images_container, filename, 60, method='PUT')
+		data={"UploadUrl":UploadUrl, "Filename":filename}
 		return HttpResponse(json.dumps(data), content_type='application/json')			
 
 
-@login_required
+@user_passes_test(lambda u: u.is_staff)
 def create_category(request):
 	'''
 	This view creates new category.
