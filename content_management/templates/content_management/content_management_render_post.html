@@ -69,14 +69,22 @@
 				{% endautoescape %}
 			</div>
 			<ul class="pager">
-				<li><a id="previous" href="">&larr; Previous</a></li>
-				<li><a id="next" href="">Next &rarr;</a></li>					
+				<li class="previous disabled"><a id="previous" href="">&larr; Previous</a></li>
+				<li class="next disabled"><a id="next" href="">Next &rarr;</a></li>					
 			</ul>
 			<script>
-				prev = $("#sibblings .active").prev().attr("href");	
-				next = $("#sibblings .active").next().attr("href");
-				$(".pager #previous").attr("href",prev);
-				$(".pager #next").attr("href", next);
+				prev = $("#sibblings .active").prev();	
+				next = $("#sibblings .active").next();
+				if (prev.length>0){
+					$(".pager .previous").removeClass("disabled");
+					$(".pager #previous").html("&larr;" + prev.html());
+					$(".pager #previous").attr("href", prev.attr("href"));
+				}
+				if (next.length>0){
+					$(".pager .next").removeClass("disabled");
+					$(".pager #next").html( next.html() + "&rarr;");
+					$(".pager #next").attr("href", next.attr("href"));
+				}
 			</script>
 		</div>
 {% endif %}

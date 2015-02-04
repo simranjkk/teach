@@ -142,6 +142,9 @@
 {% endblock %}
 {% block scripts %}
 
+$( function(){
+	$
+
 <script type="text/javascript"> 
 //Ajax to load leaf categories on selecting main category
 $("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){$("#id_category").html(data); $('#id_category').prop("disabled", false);console.log(data);});})

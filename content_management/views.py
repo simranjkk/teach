@@ -26,9 +26,10 @@ def leafCategoriesHtml(request):
 
 			return HttpResponse(options)
 		else:
-			return 
+			return HttpResponse("") 
 	else:
-		return
+		return HttpResponse("") 
+
 	
 
 def leafCategories(category_lt, category_rt):
