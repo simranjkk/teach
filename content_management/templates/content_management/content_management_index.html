@@ -2,6 +2,11 @@
 {% load static %}
 {% block body %}
 
+{% if posts %}
+{% for post in posts %}
+<li><a href="/subjects{{post.url}}author/{{post.author.username}}">{{post.post_name}}:{{post.title}}</a>
+{% endfor %}
+{% endif %}
 <div class="container-fluid" style="text-align:center; padding-top:150px;" >
 	<div class="row" style="background-image:'{% static "html/img/learn.jpg" %}'">
 		<h1 style="margin-top:50px; color:blue;">I want to study ...</h1>

@@ -2,6 +2,7 @@ from django.conf.urls import patterns, url
 from content_management import views
 from content_management import forms
 urlpatterns = patterns('',
+	url(r'^search',views.search),
 	url(r'^create/post/$', views.create_post, name='create_post'),
     url(r'^edit/post/(?P<post_id>\d+)/$', views.edit_post, name='edit_post'),
     url(r'^create/category/$', views.create_category, name='create_category'),
