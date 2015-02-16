@@ -50,9 +50,9 @@ class Post(models.Model):
 	content = models.TextField("Content", blank=True)
 	excerpt = models.CharField("Excerpt for hidden posts or search results", max_length=500, blank=True)
 	published = models.DateTimeField("Published or not", blank=True, null=True, default=None)
-	draft = models.BooleanField("Draft or not", default=False)
-	hidden = models.BooleanField("Hidden or available to all", default=False)
-	trash = models.BooleanField("If Post is deleted by user", default=False)
+	draft = models.DateTimeField("Draft or not", default=False)
+	hidden = models.DateTimeField("Hidden or available to all", default=False)
+	trash = models.DateTimeField("If Post is deleted by user", default=False)
 	user_sequence = models.IntegerField("Sequence defined by user")
 	sequence = models.IntegerField("Sequence by teachoo")
 	likes = models.IntegerField("Likes")
@@ -80,7 +80,7 @@ class PostForm(ModelForm):
 		cleaned_data = super(PostForm, self).clean()
 		post_name = cleaned_data.get("post_name")
 		category = cleaned_data.get("category")
-		if Post.objects.filter( category = category, author = self.author, post_name = post_name, draft=False, trash=False, hidden = False).exists(): 
+		if Post.objects.filter( category = category, author = self.author, post_name = post_name, draft=None, trash=None, hidden = None).exists(): 
 			error = u"Post with same name is already published or is in request queue"	
 		
 			self._errors["post_name"] = self.error_class([error])
