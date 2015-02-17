@@ -4,7 +4,7 @@
 
 {% block head_title %} {% if requested_post %} {{ requested_post.post_name|capfirst }} {% else %} {{ requested_posts.0.post_name|capfirst }} {% endif%} {% endblock %}
 {% block navbar_header %} 
-<a class="visible-sm visible-xs navbar-button" href="#sibblings">sibbling</a>
+<a class="visible-sm visible-xs navbar-brand" href="#sibblings"><i class="fa fa-chevron-left"></i></a>
 
 {{ requested_post.author.username }} 
 {% endblock %}
@@ -28,7 +28,7 @@ margin-right:auto;
 		{% if requested_posts %}
 			<div class="page-header">
 				<a href="/subjects{{requested_post.category.url }}"><i class="fa fa-chevron-left"></i> {{requested_post.category.name|capfirst }}</a>
-				<h3 style="text-align:center;">{{ requested_post.title|capfirst }}</h3>
+				<h3 class="text-center">{{ requested_post.title|capfirst }}</h3>
 			</div>
 			{% for post in requested_posts %}		
 				<div class="well well-lg">

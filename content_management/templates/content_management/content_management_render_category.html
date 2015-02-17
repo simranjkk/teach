@@ -44,7 +44,7 @@
 							{% if result.parent == requested_category %}
 
 							<hr>
-							<h3 class="maincategory"><a href="/subjects{{result.url}}"><i>{{ result.name|capfirst }}</i></h3>
+							<h3 class="maincategory"><a href="/subjects{{result.url}}"><i>{{ result.name|capfirst }}</i></a></h3>
 							{% else%}
 						<span class="subcategory">&#160;&#160;<i class="fa fa-fighter-jet"></i><a href="/subjects{{result.url}}">{{result.name|capfirst}}</a></span>
 							{% endif %}

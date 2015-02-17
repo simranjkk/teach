@@ -1,10 +1,11 @@
 from django.db import models
-from django.db.models import ForeignKey, F
+from django.db.models import ForeignKey, F, Q
 from django.forms import ModelForm
 from django import forms
 from django.contrib.auth.models import User
 from helper import create_url
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class CategoryManager(models.Manager):
 	def create_category(self, parent, name, url, description):
@@ -50,9 +51,9 @@ class Post(models.Model):
 	content = models.TextField("Content", blank=True)
 	excerpt = models.CharField("Excerpt for hidden posts or search results", max_length=500, blank=True)
 	published = models.DateTimeField("Published or not", blank=True, null=True, default=None)
-	draft = models.DateTimeField("Draft or not", default=False)
-	hidden = models.DateTimeField("Hidden or available to all", default=False)
-	trash = models.DateTimeField("If Post is deleted by user", default=False)
+	draft = models.DateTimeField("Draft or not", default=None, blank=True, null=True)
+	hidden = models.DateTimeField("Hidden or available to all", default=None, blank=True, null=True)
+	trash = models.DateTimeField("If Post is deleted by user", default=None, blank=True, null=True)
 	user_sequence = models.IntegerField("Sequence defined by user")
 	sequence = models.IntegerField("Sequence by teachoo")
 	likes = models.IntegerField("Likes")
@@ -70,6 +71,7 @@ class PostForm(ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		self.author = kwargs.pop('author',None)
+		self.post_id = kwargs.pop('id_post', None)
 		super(PostForm, self).__init__(*args, **kwargs)
 
 	class Meta:
@@ -80,11 +82,13 @@ class PostForm(ModelForm):
 		cleaned_data = super(PostForm, self).clean()
 		post_name = cleaned_data.get("post_name")
 		category = cleaned_data.get("category")
-		if Post.objects.filter( category = category, author = self.author, post_name = post_name, draft=None, trash=None, hidden = None).exists(): 
+		if Post.objects.filter( ~Q(id = self.post_id), category = category, author = self.author, post_name = post_name, draft=None, trash=None, hidden = None).exists(): 
 			error = u"Post with same name is already published or is in request queue"	
+			print self.post_id 
 		
 			self._errors["post_name"] = self.error_class([error])
 			del cleaned_data["post_name"]
+			
 		return cleaned_data #this statement is not required in django1.7
 
 class CategoryForm(ModelForm):

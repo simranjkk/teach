@@ -195,10 +195,10 @@ def edit_post(request, post_id):
 # take previous status under consideration i.e. draft or published, so that on editing published post its sequence and user_sequence does not change
 	context = RequestContext(request)
 	try:
-		post = Post.objects.select_for_update().get( id = post_id )
+		post = Post.objects.get( id = post_id )
 		if request.user.id == post.author_id:
 			if request.method == 'POST':
-				form = PostForm( request.POST, instance = post)
+				form = PostForm( request.POST,author=request.user, id_post=post.id, instance = post)
 				if form.is_valid():
 					edited_post = form.save( commit = False )
 					edited_post.date_time_last_modified = timezone.now()
@@ -209,29 +209,39 @@ def edit_post(request, post_id):
 						edited_post.trash = None
 						edited_post.user_sequence=0
 						edited_post.sequence=0
+						edited_post.save()
+						return HttpResponseRedirect("/dashboard/posts/drafts/")
 					elif 'publish' in request.POST:
+						
 						if request.user.is_staff and post.published==None:
 							edited_post.published = timezone.now() 
 							edited_post.draft = None
 							edited_post.trash = None
 							temp = Post.objects.filter( category = edited_post.category, author = edited_post.author, published__isnull=False, draft=None, trash=None ).aggregate(Max('user_sequence')) 
-							if temp['user_sequence']:
+							if temp['user_sequence__max']:
 								edited_post.user_sequence = temp['user_sequence__max']+1
 							else:
 								edited_post.user_sequence = 1
 							temp = Post.objects.filter( category = edited_post.category, published__isnull=False, draft=None, trash=None ).aggregate(Max('sequence'))
-							if temp['sequence_max']:
+							if temp['sequence__max']:
 								edited_post.sequence = temp['sequence__max'] +1
 							else:
 								edited_post.sequence = 1
+							edited_post.save()
+							return HttpResponseRedirect("/subjects" + edited_post.url + "author/" + edited_post.author.username)
 							
 						elif not request.user.is_staff:
 							edited_post.published = None
 							edited_post.draft = None 
 							edited_post.trash = None 
-					edited_post.save()
-					return HttpResponse("Post edited.")
-	
+							edited_post.save()
+							return HttpResponseRedirect("/dashboard/posts/pending/")
+						else:
+							edited_post.save()
+							return HttpResponseRedirect("/subjects"+ edited_post.url + "author/" + edited_post.author.username )
+				else:
+					print form.errors	
+					return render_to_response('content_management/content_management_edit_post.html',{'form': form, 'post_id': post.id}, context)
 			else:
 				form = PostForm(instance = post)
 				return render_to_response('content_management/content_management_edit_post.html',{'form': form, 'post_id': post.id}, context)

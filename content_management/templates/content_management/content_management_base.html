@@ -123,15 +123,11 @@
             </div>
 			{% block navbar_body %} {% endblock %}
             <div class="collapse navbar-collapse navbar-ex1-collapse">
-                  <form class="navbar-form navbar-left" role="search">
-						<span class="input-group" style="display:inline-flex;">
-								
-                             <input type="text" id="search-text" placeholder="I'd like to learn about" class="form-control">
-							<span class="input-group-btn">
-						<a href="" id="search" class="btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i></a></span></span>
-<script>
-$("#search-text").change(function(){$("#search").attr("href","/search?query=" + $("#search-text").val())});
-</script>
+                  <form class="navbar-form navbar-left" action="/search/" method="GET" role="search">
+					<div class="form-group">	
+                             <input type="text" name="query" placeholder="Search" class="form-control">
+					</div>
+						<button type="submit" class="btn btn-default">Search</button>
                   </form>
                 <ul class="nav navbar-nav navbar-right">
 
