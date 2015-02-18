@@ -46,7 +46,7 @@ class Post(models.Model):
 	date_time_created = models.DateTimeField("Created Time")
 	date_time_last_modified = models.DateTimeField("Last Modified Time")
 	title = models.CharField("Title of the post", max_length=70)
-	metadata = models.CharField("Metadata for seo", max_length=140, blank=True)
+	metadata = models.TextField("Metadata for seo", blank=True)
 	post_name = models.CharField("Name", max_length=100, db_index=True)
 	content = models.TextField("Content", blank=True)
 	excerpt = models.CharField("Excerpt for hidden posts or search results", max_length=500, blank=True)
