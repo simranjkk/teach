@@ -384,11 +384,13 @@ def generateUploadUrl(request):
 	if request.is_ajax():
 		if request.GET['FileType'] == "post_image":
 			from teachoo_web_project.urls import post_images_container
+			post_images_container.set_metadata({'Access-Control-Allow-Origin': os.environ["DOMAIN_NAME"]})
 			filename=str(uuid.uuid4()) + request.GET['filename']
 			UploadUrl = pyrax.cloudfiles.get_temp_url(post_images_container, filename, 60, method='PUT')
 
 		elif request.GET['FileType'] == "download_file":
 			from teachoo_web_project.urls import download_files_container
+			download_files_container.set_metadata({'Access-Control-Allow-Origin': os.environ["DOMAIN_NAME"]})
 			filename=str(uuid.uuid4()) + request.GET['filename']
 			UploadUrl = pyrax.cloudfiles.get_temp_url(download_files_container, filename, 60, method='PUT')
 

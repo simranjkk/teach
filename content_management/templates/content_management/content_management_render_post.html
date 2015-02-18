@@ -63,7 +63,7 @@ margin-right:auto;
 			{% if sibbling_posts %}
 				<div class="list-group" style="padding-top:20px;">
         			<span href="#" class="list-group-item text-center">
-          				<strong style="font-size:20px;"> {{ requested_post.category.name|capfirst }}</strong></span> 
+          				<strong style="font-size:20px;"><a href="/subjects{{ requested_post.category.parent.url }}">{{ requested_post.category.name|capfirst }}</a></strong></span> 
             			<span class="pull-right" id="slide-submenu">
                 			<i class="fa fa-times"></i>
         				</span>
