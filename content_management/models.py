@@ -45,11 +45,11 @@ class Post(models.Model):
 	author = models.ForeignKey(User)
 	date_time_created = models.DateTimeField("Created Time")
 	date_time_last_modified = models.DateTimeField("Last Modified Time")
-	title = models.CharField("Title of the post", max_length=70)
-	metadata = models.TextField("Metadata for seo", blank=True)
+	title = models.CharField("Title of the post", max_length=140)
+	transcript = models.TextField("Transcript: text version of image or other form", blank=True)
 	post_name = models.CharField("Name", max_length=100, db_index=True)
 	content = models.TextField("Content", blank=True)
-	excerpt = models.CharField("Excerpt for hidden posts or search results", max_length=500, blank=True)
+	keywords = models.CharField("space separated keywords", max_length=500, blank=True)
 	published = models.DateTimeField("Published or not", blank=True, null=True, default=None)
 	draft = models.DateTimeField("Draft or not", default=None, blank=True, null=True)
 	hidden = models.DateTimeField("Hidden or available to all", default=None, blank=True, null=True)
@@ -76,7 +76,7 @@ class PostForm(ModelForm):
 
 	class Meta:
 		model = Post
-		fields = ['title', 'metadata', 'post_name', 'excerpt', 'category', 'content']
+		fields = ['transcript', 'post_name', 'keywords', 'category', 'content']
 
 	def clean(self):
 		cleaned_data = super(PostForm, self).clean()
@@ -109,11 +109,8 @@ class CategoryForm(ModelForm):
 		cleaned_data = super(CategoryForm, self).clean()
 		category_name = cleaned_data.get("name")
 		category_parent = cleaned_data.get("parent")
-		print cleaned_data.get("url")
 		self.cleaned_data["url"] = create_url(category_parent.url, category_name)
-		print cleaned_data
 		category_url = cleaned_data.get("url")
-		print category_url
 		if Category.objects.filter(parent = category_parent, url=category_url).exists():
 			error = u"Category with same name already exists."
 			self.errors["name"] = self.error_class([error])

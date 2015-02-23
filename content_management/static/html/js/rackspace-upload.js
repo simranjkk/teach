@@ -49,7 +49,7 @@ dropbox.addEventListener("drop",drop,false);
 
 function drop(evt){
     $('#dropbox').css("background-color","white"); 
-    alert("detected");
+    console.log("detected");
     evt.stopPropagation();
     evt.preventDefault();
  

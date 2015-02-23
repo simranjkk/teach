@@ -24,17 +24,18 @@ margin-right:auto;
 }
 </style>
 
+<div class="container">
 	<div class="row">
 		{% if requested_posts %}
 			<div class="page-header">
 				<a href="/subjects{{requested_post.category.url }}"><i class="fa fa-chevron-left"></i> {{requested_post.category.name|capfirst }}</a>
-				<h3 class="text-center">{{ requested_post.title|capfirst }}</h3>
+				<h3 class="text-center">{{ requested_post.post_name|capfirst }}</h3>
 			</div>
 			{% for post in requested_posts %}		
 				<div class="well well-lg">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title"><a href='/subjects{{post.url}}author/{{post.author.username}}'>{{ post.post_name|capfirst }}: {{post.title|capfirst}}</a></h3>{{ post.author.username }}
+							<h3 class="panel-title"><a href='/subjects{{post.url}}author/{{post.author.username}}'>{{ post.post_name|capfirst }}: {{post.post_name|capfirst}}</a></h3>{{ post.author.username }}
 						</div>
 					</div>									
 				</div>
@@ -46,7 +47,7 @@ margin-right:auto;
 				<link rel="stylesheet" type="text/css" href="{% static "html/css/cke-editor.css" %}"/>
 				<div class="page-header">
 					<a href="/subjects{{requested_post.category.url }}"><i class="fa fa-chevron-left"></i> {{requested_post.category.name|capfirst }}</a>
-					<h3 style="text-align:center;">{{ requested_post.title|capfirst }}</h3>
+					<h3 style="text-align:center;">{{ requested_post.post_name|capfirst }}</h3>
 				</div>
 				<div class="post_content">
 				{% autoescape off %}
@@ -58,7 +59,20 @@ margin-right:auto;
 				<li id="previous" class="disabled"><a class="previous" href="">&larr; Previous</a></li>
 				<li id="next" class="disabled"><a class="next" href="">Next &rarr;</a></li>					
 			</ul>
+{% if requested_post.metadata %}
+<div class="text-center">
+<hr>
+<p class="lead">Transcript</p>
+
+<p id="transcript">{{ requested_post.metadata }}</p>
+<button class="btn btn-default " id="show-more">Show More</button>
+
+</div>
+{% endif %}
 		</div>
+		
+		
+
 		<div class="col-md-3">
 			{% if sibbling_posts %}
 				<div class="list-group" style="padding-top:20px;">
@@ -81,6 +95,7 @@ margin-right:auto;
 		</div>
 {% endif %}
 </div>
+</div>
 {% endblock %}
 {% block scripts %}
 			<script>
@@ -96,5 +111,25 @@ margin-right:auto;
 					$(".pager .next").html( next.html() + "&rarr;");
 					$(".pager .next").attr("href", next.attr("href"));
 				}
+
+
+
+
+
+$('#transcript').css({height:'30px', overflow:'hidden'});
+$('#show-more').on('click', function() {
+    var $this = $('#transcript');
+    if ($this.data('open')) {
+        $this.animate({height:'30px'});
+        $this.data('open', 0);
+		$('#show-more').html("Show More");
+
+    }
+    else {
+        $this.animate({height:'100%'});
+        $this.data('open', 1);
+		$('#show-more').html("Show Less");
+    }
+});
 			</script>
 {% endblock %}

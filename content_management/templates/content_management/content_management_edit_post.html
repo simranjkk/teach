@@ -25,22 +25,6 @@
 			</div>	
 
 		<div class="col-md-8">
-			<div class="row form-group" style="padding-bottom:10px;">
-				<div class="col-md-1 col-sm-1">	
-					<label for="{{ form.title.id_for_label }}" class="col-md-2 text-center"> Title:</label>
-				</div>
-				<div class="col-md-10 col-sm-10">
-					<input type="text" name="title" maxlength="70" id="{{ form.title.id_for_label }}" class="form-control" value="{{ form.title.value }}"/>
-				</div>
-				<div class="col-md-1 col-sm-1">
-				</div>
-				{% if form.title.errors %}
-					{% for error in form.title.errors %}
-						<div class="alert alert-danger">{{ error|escape }}</div>	
-					{% endfor %}
-				{% endif %}
-			</div>	
-
 			<div class="row form-group">
 				<div class="col-md-1 col-sm-1">
 					<label for="{{ form.post_name.id_for_label }}" class="col-md-2"> Post Name:</label>
@@ -60,7 +44,9 @@
 			<textarea name="content" id="{{ form.content.id_for_label }}">
 			{{ form.content.value }}
 			</textarea>
-			<script src="http://cdn.ckeditor.com/4.4.3/full/ckeditor.js"></script>
+			<script src="http://cdn.ckeditor.com/4.4.7/standard/ckeditor.js"></script>
+			<!--<script src="http://cdn.ckeditor.com/4.4.7/basic/ckeditor.js"></script>
+			<script src="http://cdn.ckeditor.com/4.4.7/full/ckeditor.js"></script>-->
 			<script>
 				// Replace the <textarea id="editor1"> with a CKEditor instance, using default configuration.
 				CKEDITOR.replace('content');
@@ -74,10 +60,10 @@
 		
 			<div class="row ">
 				<div class="col-md-6">
-					<label for="{{ form.metadata.id_for_label }}" class="col-md-2"> Metadata:</label>
-					<textarea name="metadata" id="{{ form.metadata.id_for_label }}" class="form-control"> {{ form.metadata.value }}</textarea>
-				 {% if form.metadata.errors %}
-                 	{% for error in form.metadata.errors %}
+					<label for="{{ form.transcript.id_for_label }}" class="col-md-2"> Transcript:</label>
+					<textarea name="transcript" id="{{ form.transcript.id_for_label }}" class="form-control">{{ form.transcript.value }}</textarea>
+				 {% if form.transcript.errors %}
+                 	{% for error in form.transcript.errors %}
                     	<div class="alert alert-danger">{{error|escape }}</div>
                     {% endfor %}
                  {% endif %}
@@ -85,10 +71,10 @@
 
 
 				<div class="col-md-6">
-					<label for="{{ form.excerpt.id_for_label }}" class="col-md-2"> Excerpt:</label>
-					<input type="text" name="excerpt" maxlength="500" id="{{ form.excerpt.id_for_label }}" class="form-control" value="{{ form.excerpt.value }}"/>
-					{% if form.excerpt.errors %}
-                    	{% for error in form.excerpt.errors %}
+					<label for="{{ form.keywords.id_for_label }}" class="col-md-2"> Keywords:</label>
+					<input type="text" name="keywords" maxlength="500" id="{{ form.keywords.id_for_label }}" class="form-control" value="{{ form.keywords.value }}"/>
+					{% if form.keywords.errors %}
+                    	{% for error in form.keywords.errors %}
                         	<div class="alert alert-danger">{{error|escape }}</div>
                     	{% endfor %}
 					{% endif %}
@@ -104,17 +90,16 @@
 
 <div class="container text-center">
 <div class="row">
-    <div id="dropbox" class="col-md-9" style="height:250px; border:2px dashed red;">
-    <h2>"Drop files here"</h2><br>
-    <p class="lead">Spaces in filename are NOT allowed. Only[dot] and alphanumeric characters are allowed.</p>
-    </div>
-
-    <div class="col-md-3">
-
-        <p class="lead"> <u>Download File</u></p>
-        <input type="file" id="downloadfile"/>
-    </div>
+	<div id="dropbox" class="col-md-offset-2 col-md-5" style="height:250px; border:2px dashed red;">
+		<h2>"Drop files here"</h2><br>
+		<p class="lead">Avoid special characters like @ $ % & $ ^ in filenames </p>
+	</div>
+	<div class="col-md-offset-1 col-md-3">
+		<p class="lead"> <u>Download File</u></p>
+		<input type="file" id="downloadfile"/>
+	</div>
 </div>
+
 
 
 
@@ -131,7 +116,7 @@
 <script type="text/javascript"> 
 // Code to auto save form text while typing
 $( function(){
-    $("#post_form").sisyphus();
+	$("#post_form").sisyphus();
 });
 </script>
 <script type="text/javascript" src="{% static 'html/js/rackspace-upload.js'%}"></script>

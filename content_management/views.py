@@ -201,6 +201,7 @@ def edit_post(request, post_id):
 				form = PostForm( request.POST,author=request.user, id_post=post.id, instance = post)
 				if form.is_valid():
 					edited_post = form.save( commit = False )
+					edited_post.title=edited_post.category.url.replace('/',' ')
 					edited_post.date_time_last_modified = timezone.now()
 					edited_post.url = create_url(edited_post.category.url, edited_post.post_name)
 					if 'draft' in request.POST:
@@ -337,6 +338,7 @@ def create_post(request):
 			
 		if form.is_valid():
 			post=form.save(commit=False)
+			post.title=post.category.url.replace('/',' ')
 			post.date_time_created = timezone.now()
 			post.date_time_last_modified  = timezone.now()
 			post.author = request.user
@@ -377,24 +379,25 @@ def create_post(request):
 		else:
 			print form.errors
 	else:
-		form=PostForm(initial={'title':'', 'post_name':'', 'excerpt':'', 'metadata':'', 'content':''})
+		form=PostForm(initial={'post_name':'', 'keywords':'', 'transcript':'', 'content':''})
        	return render_to_response('content_management/content_management_create_post.html', {'form':form}, context)
 
 def generateUploadUrl(request):
 	if request.is_ajax():
+		original_filename = request.GET['filename']
+		cleaned_filename = original_filename.replace(' ', "-").replace('_','-').lower()
+		unique_filename=str(uuid.uuid4()) + cleaned_filename 
 		if request.GET['FileType'] == "post_image":
 			from teachoo_web_project.urls import post_images_container
 			post_images_container.set_metadata({'Access-Control-Allow-Origin': os.environ["DOMAIN_NAME"]})
-			filename=str(uuid.uuid4()) + request.GET['filename']
-			UploadUrl = pyrax.cloudfiles.get_temp_url(post_images_container, filename, 60, method='PUT')
+			UploadUrl = pyrax.cloudfiles.get_temp_url(post_images_container, unique_filename, 60, method='PUT')
 
 		elif request.GET['FileType'] == "download_file":
 			from teachoo_web_project.urls import download_files_container
 			download_files_container.set_metadata({'Access-Control-Allow-Origin': os.environ["DOMAIN_NAME"]})
-			filename=str(uuid.uuid4()) + request.GET['filename']
-			UploadUrl = pyrax.cloudfiles.get_temp_url(download_files_container, filename, 60, method='PUT')
+			UploadUrl = pyrax.cloudfiles.get_temp_url(download_files_container, unique_filename, 60, method='PUT')
 
-		data={"UploadUrl":UploadUrl, "Filename":filename}
+		data={"UploadUrl":UploadUrl, "Filename":unique_filename}
 		return HttpResponse(json.dumps(data), content_type='application/json')			
 
 
