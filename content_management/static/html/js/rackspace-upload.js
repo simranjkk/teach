@@ -132,7 +132,7 @@ $("#downloadfile").on("change",function(e){
                                         contentType:false,
                                         processData:false,
                                         success: function(data){
-                                            DownloadButton="<div class='row' ><div class='col-md-offset-5'><a id='download_button' class='btn btn-default' type='button' href=https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename + " download>Download</a></div></div>";
+                                            DownloadButton="<p id='download_file'>" + filename + "&nbsp; <a id='download_button' href=https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename + " download>Download</a></p>";
                                             console.log(DownloadButton);
                                             $('iframe').contents().find('body.cke_editable').contents().append(DownloadButton);
                 
