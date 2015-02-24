@@ -59,12 +59,12 @@ margin-right:auto;
 				<li id="previous" class="disabled"><a class="previous" href="">&larr; Previous</a></li>
 				<li id="next" class="disabled"><a class="next" href="">Next &rarr;</a></li>					
 			</ul>
-{% if requested_post.metadata %}
+{% if requested_post.transcript %}
 <div class="text-center">
 <hr>
 <p class="lead">Transcript</p>
 
-<p id="transcript">{{ requested_post.metadata }}</p>
+<p id="transcript" style="text-align:left;">{{ requested_post.transcript }}</p>
 <button class="btn btn-default " id="show-more">Show More</button>
 
 </div>

@@ -29,7 +29,7 @@
   <li role="presentation" class="active"><a href="/dashboard/posts/trash/">Trash</a></li>
 {% endifequal %}  
 
-<a class="btn btn-default" href="/create/post/">Create New Post</a>
+<a class="btn btn-default" href="http://teachoo.herokuapp.com/create/post/">Create New Post</a>
 <a class="btn btn-default" href="/reorder/">Reorder Posts</a>
 </ul>
          {% if warnings %}
@@ -42,15 +42,16 @@
         </div>
          {% endif %}
 
-		<div class="panel panel-default">
-			<div class="panel-heading text-center"></div>
 
 			{% if posts %}
 			{% regroup posts by category.url as post_grouped %}
 			<form id="action_form" method="POST">
 			{% csrf_token %}
+		<div id="accordion">
 				{% for post_group in post_grouped %}
-					<p class="lead text-center">{{ post_group.grouper }}</p>
+					<h3>{{ post_group.grouper }}</h3>
+					<!--<p class="lead text-center">{{ post_group.grouper }}</p>-->
+					<div>
 					<table class="table">
 						{% for post in post_group.list %}
 						<tr>
@@ -60,7 +61,9 @@
 						<tr>
 						{% endfor %}
 					</table>
+					</div>
 				{% endfor %}
+		</div>
 			{% if type == "published" or type == "pending" %}
             <button type="submit"  name="action" value="draft" >Send to Drafts</button>
             <button type="submit"  name="action" value="trash" >Move to Trash</button>
@@ -71,11 +74,25 @@
             <button type="submit" name="action" value="draft" > Move to Drafts </button>
         {% endif %}
 	</form>	
-			{% else %}
-			<div class="panel-body">No posts in this category</div>
+		{% else %}
+		<div class="jumbotron">
+			<h3>No posts here! </h3>
+		</div>
 			{% endif %}
 
-		</div>
 
 </div>
+{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+{% endblock %}
+{% block scripts %}
+  <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+  <script>
+  $(function() {
+    $( "#accordion" ).accordion({
+	heightStyle:"content", collapsible:true
+    });
+  });
+  </script>
 {% endblock %}
