@@ -111,8 +111,8 @@ def retrieve_category( request, url ):
 	try:
 		requested_category = Category.objects.get( url = url, published__isnull = False)
 		if (requested_category.rt == requested_category.lt + 1):
-			result_type = "post"
-			results = posts( requested_category.id )
+			first_post = Post.objects.filter(category__id = requested_category.id, published__isnull = False, draft = None, trash = None).order_by('sequence')[0]
+			return HttpResponseRedirect('/subjects' + first_post.url + 'author/' +  first_post.author.username )	
 		else:
 			result_type = "category"
 			results = subtree( requested_category.lt, requested_category.rt, requested_category.level )
