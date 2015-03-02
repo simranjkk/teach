@@ -21,6 +21,9 @@ display:block;
 margin-left:auto;
 margin-right:auto;
 }
+.enlarged{
+width:100%;
+}
 }
 </style>
 
@@ -133,5 +136,12 @@ $('#show-more').on('click', function() {
 		$('#show-more').html("Show Less");
     }
 });
+
+$(document).ready(function(){
+	$(".post-images").click(function(){
+		$(this).toggleClass('enlarged');
+	});
+});
+
 			</script>
 {% endblock %}

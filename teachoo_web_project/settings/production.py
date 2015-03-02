@@ -20,7 +20,7 @@ DATABASES['default'] = dj_database_url.config()
 # Enable Connection Pooling
 #DATABASES['default']['ENGINE'] = 'django_postgrespool'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.teachoo.com','.teachoo.herokuapp.com']
 
 
 #STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

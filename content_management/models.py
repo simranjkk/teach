@@ -36,6 +36,13 @@ class Category(models.Model):
                 return self.url
 
 
+	
+	def delete_category(self):
+		Category.objects.filter(lt__gt = self.rt).update(lt=F('lt')-2, rt=F('rt')-2)
+		Category.objects.filter(lt__lt = self.lt, rt__gt = self.rt).update(rt=F('rt')-2)
+		self.delete()
+
+
 class Post(models.Model):
 	'''
 	This model contains post. One post corresponds to one small topic.
@@ -68,7 +75,6 @@ class PostForm(ModelForm):
 	'''
 	ModelForm for creating or editing posts.
 	'''
-
 	def __init__(self, *args, **kwargs):
 		self.author = kwargs.pop('author',None)
 		self.post_id = kwargs.pop('id_post', None)

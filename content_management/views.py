@@ -110,11 +110,13 @@ def retrieve_category( request, url ):
 	url = slugify_url(url)
 	try:
 		requested_category = Category.objects.get( url = url, published__isnull = False)
+		result_type = "category"
 		if (requested_category.rt == requested_category.lt + 1):
-			first_post = Post.objects.filter(category__id = requested_category.id, published__isnull = False, draft = None, trash = None).order_by('sequence')[0]
-			return HttpResponseRedirect('/subjects' + first_post.url + 'author/' +  first_post.author.username )	
+			results=posts(requested_category.id)
+			if results.exists():			
+				first_post = results[0]
+				return HttpResponseRedirect('/subjects' + first_post.url + 'author/' +  first_post.author.username )	
 		else:
-			result_type = "category"
 			results = subtree( requested_category.lt, requested_category.rt, requested_category.level )
 
 		return render_to_response('content_management/content_management_render_category.html', {'requested_category':requested_category, 'results':results, 'result_type':result_type}, context)
@@ -439,32 +441,35 @@ def delete_category(request):
 	'''
 	warnings=[]
 	flag=False
-	for category_id in request.POST.itervalues():
-		if Post.objects.filter(category_id=category_id, published__isnull=False).exists(): 
-			warnings.append="delete all posts in category id" + category_id
-			flag=True
-		if Category.objects.filter(parent_id=category.id).exists():
-			warnings.append="delete all the subcategories first form category id" + category_id
-			flag=True
-		if Post.objects.filter(category_id=category_id, published=None, trash=None, draft=None).exists():
-			warnings.append="clear all the pending publish requests realted to category id"+ category_id
-			flag=True
+	for key,category_id in request.POST.iteritems():
+		if check_key(key):
+			if Post.objects.filter(category_id=category_id, published__isnull=False).exists(): 
+				warnings.append("delete all posts in category id " + category_id)
+				flag=True
+			elif Category.objects.filter(parent_id=category_id).exists():
+				warnings.append("delete all the subcategories first from category id " + category_id)
+				flag=True
+			elif Post.objects.filter(category_id=category_id, published=None, trash=None, draft=None).exists():
+				warnings.append("clear all the pending publish requests realted to category id "+ category_id)
+				flag=True
 	
-		if not flag:
-			try:
-				Post.objects.filter(category__id=category_id).update(category=None)
-				category = Category.objects.get(id=category_id)
-				Category.objects.filter(lt__gt = category.rt).update(lt=F('lt')-2, rt=F('rt')-2)
-				Category.objects.filter(rt__gt = category.rt).update(rt=F('lt')-2)
-				category.delete()
-			except Category.DoesNotExist:
-				print "error"
-	return dashboard_categories(request, warnings)		
+			if not flag:
+				try:
+					category = Category.objects.get(id=category_id)
+					category.delete_category()
+				except Category.DoesNotExist:
+					warnings.append("category does not exist with category id " + category_id)
+	return  warnings		
 	
 @user_passes_test(lambda u: u.is_staff)
 def dashboard_categories(request, warnings=None):
 	
-	categories = Category.objects.filter(lt__gt=1).order_by('lt')
+	if request.method == "POST":
+		action_type = request.POST['action']
+		if action_type=="delete":
+			warnings = delete_category(request)
+			
+	categories = Category.objects.filter(lt__gt=1, published__isnull=False).order_by('lt')
 	return render_to_response('content_management/content_management_dashboard_categories.html', {'categories':categories,'warnings':warnings}, RequestContext(request))
 
 @login_required()
