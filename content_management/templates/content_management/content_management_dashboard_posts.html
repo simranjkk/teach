@@ -47,7 +47,7 @@
 			{% regroup posts by category.url as post_grouped %}
 			<form id="action_form" method="POST">
 			{% csrf_token %}
-		<div id="accordion">
+		<div class="accordion">
 				{% for post_group in post_grouped %}
 					<h3>{{ post_group.grouper }}</h3>
 					<!--<p class="lead text-center">{{ post_group.grouper }}</p>-->
@@ -90,7 +90,7 @@
   <script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
   <script>
   $(function() {
-    $( "#accordion" ).accordion({
+    $( ".accordion" ).accordion({
 	heightStyle:"content", collapsible:true
     });
   });

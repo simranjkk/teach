@@ -1,5 +1,24 @@
 {% extends "content_management/content_management_base.html" %}
 {% load static %}
+{% block stylesheets %}
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+<style>
+.post-images{
+width:100%;
+}
+@media(min-width:992px){
+.post-images{
+width:75%;
+display:block;
+margin-left:auto;
+margin-right:auto;
+}
+.enlarged{
+width:100%;
+}
+}
+</style>
+{% endblock %}
 
 {% block body %}	
 <style>
@@ -62,21 +81,6 @@
 				{% endif %}
 			</div>
 
-			<textarea name="content" id="{{ form.content.id_for_label }}">
-			{{ form.content.value }}&nbsp;
-			</textarea>
-			<script src="http://cdn.ckeditor.com/4.4.7/standard/ckeditor.js"></script>
-			<!--<script src="http://cdn.ckeditor.com/4.4.7/basic/ckeditor.js"></script>
-			<script src="http://cdn.ckeditor.com/4.4.7/full/ckeditor.js"></script>-->
-			<script>
-				// Replace the <textarea id="editor1"> with a CKEditor instance, using default configuration.
-				CKEDITOR.replace('content');
-			</script>
-			{% if form.content.errors %}
-             	{% for error in form.content.errors %}
-                   	<div class="alert alert-danger">{{error|escape }}</div>
-                {% endfor %}
-            {% endif %}
 
 		
 			<div class="row ">
@@ -103,36 +107,64 @@
 			</div>
 		</div>
 		<div class="col-md-2 text-center" style="padding-top:10px;">
-			<div><input type="submit" value="Publish" name="publish" class="btn btn-lg btn-success"/></div><br>	
-			<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-lg btn-primary"/></div><br>
+			<div><input type="submit" value="Publish" name="publish" class="btn btn-md btn-success"/></div><br>	
+			<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-md btn-primary"/></div><br>
 			{% if request.user.is_staff %}
-			<div><input type="submit" value="Publish and Create Another" name="publishandcreate" class="btn btn-lg btn-success"/></div><br>	
+			<div><input type="submit" value="Publish & Create Another" name="publishandcreate" class="btn btn-md btn-success"/></div><br>	
 			{% endif %}
 		</div>
 		</form>
 	</div>		
 
-<div class="container text-center">
-<div class="row">
-	<div id="dropbox" class="col-md-offset-2 col-md-5" style="height:250px; border:2px dashed red;">
-	<h2>"Drop files here"</h2><br>
-	<p class="lead">Avoid special characters like @ $ % & $ ^ in filenames </p>
-	</div>
+<div class="container ">
+	<hr>
+	<div class="row">
 	
-	<div class="col-md-offset-1 col-md-3">
+		<div class="col-md-3">
 		
-		<p class="lead"> <u>Download File</u></p>
-		<input type="file" id="downloadfile"/>
+			<p class="lead"> <u>Download File</u></p>
+			<input type="file" id="download-file"/>
+			<button id="question">question</button>
+		</div>
+
+
+		<div class="col-md-9">
+			<p class="lead"> Upload Status</p>
+    		<div id="progress-bar" class="progress">
+        		<div class="progress-bar"></div>
+    		</div>
+		</div>
 	</div>
-</div>
 
 
+	<div class="row">
+		<hr>
+		<div class="col-md-3 col-md-push-9">
+			<div>
+				<p><strong><u> Upload Post Image</u></strong></p>
+				<input type="file" id="post-image" multiple/>
+				<ol id="post-images-list" class="list-group" >
+				<ol>
+			</div>
+			<div>
+				<p><strong><u> Upload Download File</u></strong></p>
+				<input type="file" id="download-image" multiple/>
+				<ol id="download-files-list">
+				<ol>
+			</div>
+		</div>
+		<div class="col-md-9 col-md-pull-3">
+			<input type="hidden"  value="{{ form.content.value }}" name="content" id={{ form.content.id_for_label }} />
+			{% if form.content.errors %}
+           		{% for error in form.content.errors %}
+              		<div class="alert alert-danger">{{error|escape }}</div>
+            	{% endfor %}
+        	{% endif %}
+			<h3>Start designing your post below</h3>
+			<div class="editable" style="border:5px ridge gray; min-height:400px;"  id="dropbox"></div>
 
-    <div id="progress-bar" class="progress">
-        <div class="progress-bar"></div>
-    </div>
-
-
+		</div>
+	</div>
 </div>
 
 
@@ -140,7 +172,54 @@
 {% endblock %}
 {% block scripts %}
 <script type="text/javascript" src="{% static 'html/js/sisyphus.min.js' %}"></script>
+<script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
 <script type="text/javascript"> 
+//Accordian for question ans
+$(document).on('click',"#question", function(){
+	alert(" hh");
+    var href = $(this).attr('href');
+    tinyMCE.execCommand('mceInsertRawHTML',false, '<div class="accordion"><h3>sample question</h3><div class="answer">answer</div></div><br>');
+    $( ".accordion" ).accordion({
+    heightStyle:"content", collapsible:true
+    });
+    return false;
+});
+//To insert image in editor on insert button click
+$(document).on('click','.insert-post-image',function(){
+	alert("ok");
+    var src = $(this).attr('data-src');
+	var editor = tinyMCE.get('dropbox');                // get editor instance
+	var range = editor.selection.getRng();                  // get range
+	var Image = editor.getDoc().createElement ( "img" );  // create img node
+	Image.setAttribute("src",src);
+	Image.setAttribute("class","post-images");
+	range.insertNode(Image);      
+});
+//To insert download file in editor on insert button click
+$(document).on('click','.insert-download-file',function(){
+    var href = $(this).attr('data-href');
+    var filename = $(this).attr('data-filename');
+	var editor = tinyMCE.get('dropbox');                // get editor instance
+	var range = editor.selection.getRng();                  // get range
+	var DownloadFile = editor.getDoc().createElement ("p");  
+	DownloadFile.setAttribute("class","download-file");
+	var DownloadFileText = editor.getDoc().createTextNode(filename);
+	DownloadFile.appendChild(DownloadFileText);
+	var DownloadButton = editor.getDoc().createElement("a");
+	DownloadButton.setAttribute("href",href);
+	DownloadButton.setAttribute("class","download-button");
+	var DownloadButtonText = editor.getDoc().createTextNode("Download");
+	DownloadButton.appendChild(DownloadButtonText);
+	DownloadFile.appendChild(DownloadButton);
+	range.insertNode(DownloadFile);      
+});
+//To toggle width of post images from 75% to 100% onclick
+$(document).ready(function(){
+    $(".post-images").click(function(){
+        $(this).toggleClass('enlarged');
+    });
+});
+
 // Code to auto save form text while typing
 $( function(){
 	$("#post_form").sisyphus();
@@ -148,6 +227,23 @@ $( function(){
 
 //Ajax to load leaf categories on selecting main category
 $("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){$("#id_category").html(data); $('#id_category').prop("disabled", false);console.log(data);});})
+
+</script>
+
+<script type="text/javascript" src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+<script>
+
+tinymce.init({
+    selector: "div.editable",
+    inline: true,
+    plugins: [
+        "advlist autolink lists link image charmap print preview anchor",
+        "searchreplace visualblocks code fullscreen",
+        "insertdatetime media table contextmenu paste"
+    ],
+    toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+});
+
 </script>
 
 <script type="text/javascript" src="{% static 'html/js/rackspace-upload.js'%}"></script>

@@ -21,9 +21,14 @@ urlpatterns = patterns('',
 	
 )
 
-import pyrax, os
-pyrax.set_setting("identity_type", "rackspace")
-pyrax.set_default_region('HKG')
-pyrax.set_credentials(os.environ["RACKSPACE_USERNAME"],os.environ["RACKSPACE_API_KEY"])
-post_images_container = pyrax.cloudfiles.get_container("post-images")
-download_files_container = pyrax.cloudfiles.get_container("download-files")
+try:
+	import pyrax, os
+	pyrax.set_setting("identity_type", "rackspace")
+	pyrax.set_default_region('HKG')
+	pyrax.set_credentials(os.environ["RACKSPACE_USERNAME"],os.environ["RACKSPACE_API_KEY"])
+	post_images_container = pyrax.cloudfiles.get_container("post-images")
+	download_files_container = pyrax.cloudfiles.get_container("download-files")
+except:
+	print "error pyrax"
+
+

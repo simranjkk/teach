@@ -96,9 +96,22 @@ function handleUpload(UploadUrl, file, Filename){
         contentType:false,
         processData:false,
         success: function(data){
-            image="<img class='post-images' src=https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/" + Filename + ">";
-            console.log(image);
-            $('iframe').contents().find('body.cke_editable').contents().append(image);
+			var NewImageItem = document.createElement("li");
+			NewImageItem.setAttribute("class","list-group-item");
+			var ImageHyperlink = document.createElement("a");
+			ImageHyperlink.setAttribute("href", "https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/" + Filename);
+			ImageHyperlink.setAttribute("target", "_blank");
+			var ImageHyperlinkText = document.createTextNode(file.name);
+			ImageHyperlink.appendChild(ImageHyperlinkText);
+			NewImageItem.appendChild(ImageHyperlink);
+			var InsertButton = document.createElement("button");
+			InsertButton.setAttribute("data-src","https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/" + Filename);
+			InsertButton.setAttribute("class", "insert-post-image");
+			var InsertButtonText = document.createTextNode("Insert");
+			InsertButton.appendChild(InsertButtonText);
+			NewImageItem.appendChild(InsertButton);
+			console.log(NewImageItem);
+			document.getElementById("post-images-list").appendChild(NewImageItem);
             
             console.log( file.name + " successfully uploaded");
         },
@@ -116,41 +129,64 @@ function handleUpload(UploadUrl, file, Filename){
 
 
 
-$("#downloadfile").on("change",function(e){ 
-                        var file=this.files[0];
-                        var filename = file.name;
-                        $.ajax({
-                            type:'GET',
-                            data:{"filename":file.name, "FileType":"download_file"}, url:'/generateuploadurl/', contentType:"application/json", dataType:"json", success: function(data){ if(data.UploadUrl){ /*  console.log("upload url successfully created for " + file.name + " file");*/ console.log(data.UploadUrl);
-                                    Filename = data.Filename;
-                                    $.ajax({
-                                        xhr:xhr_with_progress,
-                                        url:data.UploadUrl,
-                                        type:'PUT',
-                                        data:file,
-                                        cache:false,
-                                        contentType:false,
-                                        processData:false,
-                                        success: function(data){
-                                            DownloadButton="<p id='download_file'>" + filename + "&nbsp; <a id='download_button' href=https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename + " download>Download</a></p>";
-                                            console.log(DownloadButton);
-                                            $('iframe').contents().find('body.cke_editable').contents().append(DownloadButton);
+$("#download-file").on("change",function(e){ 
+	var file=this.files[0];
+	var filename = file.name;
+	$.ajax({
+		type:'GET',
+		data:{"filename":file.name, "FileType":"download_file"}, 
+		url:'/generateuploadurl/', 
+		contentType:"application/json", 
+		dataType:"json", 
+		success: function(data){ 
+			if(data.UploadUrl){ 
+				/*  console.log("upload url successfully created for " + file.name + " file");*/ 
+				console.log(data.UploadUrl);
+				Filename = data.Filename;
+				$.ajax({
+					xhr:xhr_with_progress,
+					url:data.UploadUrl,
+					type:'PUT',
+					data:file,
+					cache:false,
+					contentType:false,
+					processData:false,
+					success: function(data){
+						// DownloadButton="<p id='download_file'>" + filename + "&nbsp; <a id='download_button' href=https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename + " >Download</a></p>";
+						//console.log(DownloadButton);
+						var NewDownloadItem = document.createElement("li");
+						NewDownloadItem.setAttribute("class","list-group-item");
+						var DownloadFileHyperlink = document.createElement("a");
+						DownloadFileHyperlink.setAttribute("href", "https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename);
+						DownloadFileHyperlink.setAttribute("target", "_blank");
+						var DownloadFileHyperlinkText = document.createTextNode(file.name);
+						DownloadFileHyperlink.appendChild(DownloadFileHyperlinkText);
+						NewDownloadFileItem.appendChild(DownloadFileHyperlink);
+						var InsertButton = document.createElement("button");
+						InsertButton.setAttribute("data-href","https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename);
+						InsertButton.setAttribute("data-filename",filename);
+						InsertButton.setAttribute("class", "insert-download-file");
+						var InsertButtonText = document.createTextNode("Insert");
+						InsertButton.appendChild(InsertButtonText);
+						NewDownloadItem.appendChild(InsertButton);
+						console.log(NewDownloadItem);
+						document.getElementById("download-files-list").appendChild(NewDownloadItem);
                 
-                                             console.log( file.name + " successfully uploaded");
-                                        },
-                                        error: function(data){ 
-                                            console.log("error occured while uploading " + file.name );
-                                            console.log(data);
-                                        }
-                                    }); 
+						console.log( file.name + " successfully uploaded");
+					},
+					error: function(data){ 
+						console.log("error occured while uploading " + file.name );
+						console.log(data);
+					}
+			}); 
 
-                                }
-                            },
-                            error: function(data){ 
-                                console.log("error occured while creating upload url for " + file.name + ' file');
-                                console.log(data);
-                            },
-                        });
+		}
+	},
+	error: function(data){ 
+		console.log("error occured while creating upload url for " + file.name + ' file');
+		console.log(data);
+	},
+});
 
 
 
