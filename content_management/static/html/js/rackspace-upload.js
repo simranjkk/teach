@@ -129,7 +129,7 @@ function handleUpload(UploadUrl, file, Filename){
 
 
 
-$("#download-file").on("change",function(e){ 
+$("#download-file-selector").on("change",function(e){ 
 	var file=this.files[0];
 	var filename = file.name;
 	$.ajax({
@@ -161,7 +161,7 @@ $("#download-file").on("change",function(e){
 						DownloadFileHyperlink.setAttribute("target", "_blank");
 						var DownloadFileHyperlinkText = document.createTextNode(file.name);
 						DownloadFileHyperlink.appendChild(DownloadFileHyperlinkText);
-						NewDownloadFileItem.appendChild(DownloadFileHyperlink);
+						NewDownloadItem.appendChild(DownloadFileHyperlink);
 						var InsertButton = document.createElement("button");
 						InsertButton.setAttribute("data-href","https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename);
 						InsertButton.setAttribute("data-filename",filename);

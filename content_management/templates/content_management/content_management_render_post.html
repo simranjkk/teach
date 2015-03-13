@@ -5,12 +5,33 @@
 {% block head_title %} {% if requested_post %} {{ requested_post.post_name|capfirst }} {% else %} {{ requested_posts.0.post_name|capfirst }} {% endif%} {% endblock %}
 {% block navbar_header %} 
 <a class="visible-sm visible-xs navbar-brand" href="#sibblings"><i class="fa fa-chevron-left"></i></a>
-
-{{ requested_post.author.username }} 
 {% endblock %}
 
 {% block body %}
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
 <style>
+body{
+background-color:#f1f1f1;
+}
+.bg-white{
+background-color:white;
+box-shadow:0 1px 2px rgba(0,0,0,.1);
+border-color:#f1f1f1;
+border-radius:3px;
+}
+.answer{
+color:blue;
+}
+.question{
+cursor:pointer;
+color:green;
+}
+.questionanswer{
+border:2px solid black;
+margin-top:5px;
+}
+
+
 .post-images{
 width:100%;
 }
@@ -27,7 +48,7 @@ width:100%;
 }
 </style>
 
-<div class="container">
+<div class="container" >
 	<div class="row">
 		{% if requested_posts %}
 			<div class="page-header">
@@ -46,22 +67,21 @@ width:100%;
 		{% else %}
 
 		<div class="col-md-9">
-			<div id="content" style="padding-left:10px; ">
-				<link rel="stylesheet" type="text/css" href="{% static "html/css/cke-editor.css" %}"/>
-				<ol class="breadcrumb" style="background-color:white;">
+				<ol class="breadcrumb" style="background-color:#f1f1f1;">
 					{% if requested_post.category.parent.parent %}
 					<li><a href="/subjects{{requested_post.category.parent.parent.url }}">{{requested_post.category.parent.parent.name | capfirst}}</a></li>
 					{% endif %}
 					{% if requested_post.category.parent %}
 					<li><a href="/subjects{{requested_post.category.parent.url }}">{{requested_post.category.parent.name|capfirst}}</a></li>
 					{% endif %}
-					<li class="active">{{requested_post.category.name | capfirst}}</li>
+					<li class="active"><strong>{{requested_post.category.name | capfirst}}</strong></li>
 				</ol>
-				<div class="">
-
-					<h3 style="text-align:center;">{{ requested_post.post_name|capfirst }}</h3>
+			<div id="content" style="padding-left:10px;">
+				<div class="bg-white">
+					<h3 class="text-center" style="padding-top:5px;">{{ requested_post.post_name|title }}</h3>
+					<p style="color:#999; padding-left:6px;">{{requested_post.date_time_created|date}} by {{requested_post.author.username|title}}</p>	
 				</div>
-				<div class="post_content">
+				<div class="post_content bg-white">
 				{% autoescape off %}
 					{{ requested_post.content }}
 				{% endautoescape %}
@@ -109,6 +129,34 @@ width:100%;
 </div>
 {% endblock %}
 {% block scripts %}
+<script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+
+<script>
+//ques ans
+$(document).ready(function(){
+	$(".question>i").addClass("fa fa-caret-right");
+    $(".answer").addClass("hidden");
+});
+$(document).on('click',".question", function(){
+    var caret = $(this).find('i');
+    if (caret.hasClass("fa-caret-right")){
+        caret.removeClass("fa-caret-right");
+        caret.addClass("fa-caret-down");
+    }
+    else if (caret.hasClass("fa-caret-down")){
+        caret.removeClass("fa-caret-down");
+        caret.addClass("fa-caret-right");
+    }
+    $(this).next('.answer').toggleClass("hidden");
+});
+
+
+    $(function() {
+      $( "#questions" ).accordion({
+      heightStyle:"content", collapsible:true
+      });
+    });
+</script>
 			<script>
 				next = $("#sibblings .active").next();
 				if (next.length>0){
