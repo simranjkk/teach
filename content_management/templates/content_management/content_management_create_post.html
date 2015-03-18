@@ -1,34 +1,7 @@
 {% extends "content_management/content_management_base.html" %}
 {% load static %}
 {% block stylesheets %}
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
-<style>
-.answer{
-color:blue;
-}
-.question{
-cursor:pointer;
-color:green;
-}
-.questionanswer{
-border:2px solid black;
-margin-top:5px;
-}
-.post-images{
-width:100%;
-}
-@media(min-width:992px){
-.post-images{
-width:75%;
-display:block;
-margin-left:auto;
-margin-right:auto;
-}
-.enlarged{
-width:100%;
-}
-}
-</style>
+<link rel="stylesheet" href="{% static 'html/css/custom.css' %}">
 {% endblock %}
 
 {% block body %}	
@@ -92,7 +65,12 @@ width:100%;
 		{% endif %}
 	</div>
 
-<textarea name="content" id="id_content" style="visibility: hidden; display: none;"></textarea>
+			<input type="hidden"  value="{{ form.content.value }}" name="content" id={{ form.content.id_for_label }} />
+			{% if form.content.errors %}
+           		{% for error in form.content.errors %}
+              		<div class="alert alert-danger">{{error|escape }}</div>
+            	{% endfor %}
+        	{% endif %}
 
 	<div class="row ">
 		<div class="col-md-6">
@@ -128,6 +106,8 @@ width:100%;
 	</div>		
 
 <div class="container ">
+			<h3 class="text-center">Create your post</h3>
+			<textarea id="fake_content"></textarea>
 	<hr>
 	<div class="row">
 	
@@ -150,37 +130,33 @@ width:100%;
 		<div class="col-md-3 col-md-push-9">
 			<div>
 				<p><strong><u> Upload Post Image</u></strong></p>
-				<input type="file" id="post-image-selector" multiple/>
+				<div id="post-image-selector-div">
+					<input type="file" id="post-image-selector" multiple/>
+				</div>
 				<ol id="post-images-list" class="list-group" >
 				<ol>
 			</div>
 			<div>
 				<p><strong><u> Upload Download File</u></strong></p>
-				<input type="file" id="download-file-selector"/>
+				<div id="download-file-selector-div">
+					<input type="file" id="download-file-selector"/>
+				</div>
 				<ol id="download-files-list">
 				<ol>
 			</div>
 		</div>
 		<div class="col-md-9 col-md-pull-3">
-			<input type="hidden"  value="{{ form.content.value }}" name="content" id={{ form.content.id_for_label }} />
-			{% if form.content.errors %}
-           		{% for error in form.content.errors %}
-              		<div class="alert alert-danger">{{error|escape }}</div>
-            	{% endfor %}
-        	{% endif %}
-			<h3>Start designing your post below</h3>
-			<div class="editable" style="border:5px ridge gray; min-height:400px;"  id="dropbox"></div>
 			<hr>
 			<div class="row">
 				<div class="col-sm-6">
 					<button id="insertQuestion">Add question</button>
 				</div>
 				<div class="col-sm-6">
-					<button id="createQuestions" onClick="createQuestions()">Create questions</button>
+					<button id="createQuestions" >Create questions</button>
 				</div>
-			<div id="composeQuestions">
-			</div>
-			<div id="questions" ></div>
+			<form id="composeQuestions" >
+			</form>
+			<div id="questions"></div>
 
 		</div>
 	</div>
@@ -189,8 +165,8 @@ width:100%;
 {% endblock %}
 {% block scripts %}
 <script type="text/javascript" src="{% static 'html/js/sisyphus.min.js' %}"></script>
-<script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
 <script type="text/javascript"> 
+
 //Insert QuestionAnswerGroup to create new question on button click
 $("#insertQuestion").on("click",function(){
 	var QuestionAnswerGroup = document.createElement("div");
@@ -198,7 +174,7 @@ $("#insertQuestion").on("click",function(){
 	QuestionField.setAttribute("type", "text");
 	QuestionField.setAttribute("class", "questionText");
 	var AnswerField = document.createElement("textarea");
-	AnswerField.setAttribute("class", "answerText");
+	AnswerField.setAttribute("class", "answerText tinymce");
 	var DeleteButton = document.createElement("button");
 	DeleteButton.setAttribute("class", "deleteQuestionAnswerGroup");
 	var DeleteButtonText = document.createTextNode("Delete")
@@ -207,6 +183,56 @@ $("#insertQuestion").on("click",function(){
 	QuestionAnswerGroup.appendChild(AnswerField);
 	QuestionAnswerGroup.appendChild(DeleteButton);
 	$("#composeQuestions").append(QuestionAnswerGroup);
+tinymce.init({
+    selector: "textarea.answerText",
+    plugins: [
+        "advlist autolink lists link image charmap print preview anchor",
+        "searchreplace visualblocks code fullscreen",
+        "insertdatetime media table contextmenu paste"
+    ],
+    toolbar: "Image DownloadFile insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+
+    content_css:["{%static 'html/css/custom.css' %}","{% static 'html/bootstrap/css/bootstrap.min.css' %}","{% static 'html/font-awesome/css/font-awesome.min.css' %}"], 
+
+   setup : function(ed) {
+        var editor = ed;
+      // Register Image button
+      ed.addButton('Image', {
+        title : 'Insert Image',
+        text:'Image',
+         //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+        onclick : function() {
+            $("#post-image-selector").click();
+            $('#post-image-selector').on('change',function(){
+
+                 var files = $('#post-image-selector')[0].files;
+                $("#post-image-selector-div").html("<input type=file id=\"post-image-selector\" multiple />");
+                var count = files.length;
+                if(count>0){
+                    for(var i=0;i<count;i++){
+                        handleFiles(editor,files[i]);
+                    }
+   }
+            });
+         }
+      });
+      // Register DownloadFile button
+      ed.addButton('DownloadFile', {
+        title : 'Insert Download File',
+        text:'File',
+         //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+        onclick : function() {
+            $("#download-file-selector").click();
+            $('#download-file-selector').on('change',function(){
+
+                var files = $('#download-file-selector')[0].files;
+                $("#download-file-selector-div").html("<input type=file id=\"download-file-selector\" />");
+                upload2rackDownloadFile(editor,files[0]);
+            });
+         }
+      });
+   }
+});
 	
 	});
 //Delete corresponding QuestionAnswerGroup on delete button click
@@ -214,14 +240,16 @@ $(document).on("click", ".deleteQuestionAnswerGroup", function(){
 	$(this).parent()[0].remove();		
 	});
 
-createQuestions = function (){
+$("#createQuestions").on("click",function(){
 	var Questions = $("#composeQuestions").children();
 	var QuestionsHtml = "";
 	$.each(Questions, function(index, Question){
 	var QuestionText = Question.children[0].value;
-	var AnswerText = Question.children[1].value;
+	var AnswerId = Question.children[2].getAttribute("id");
+	var AnswerText = tinyMCE.get(AnswerId).getContent();
 		if(QuestionText || AnswerText){
-			 QuestionsHtml += "<div class=questionanswer ><p class=question><i></i>" + QuestionText + "</p><p class=answer>" + AnswerText + "</p></div>";
+			 QuestionsHtml += "<div class=questionanswer ><p class=question><i></i>" + QuestionText + "</p><div class=answer>" + AnswerText + "</div></div>";
+			console.log(QuestionsHtml);
 		}
 	});
 	$("#questions").html(QuestionsHtml);
@@ -230,7 +258,8 @@ createQuestions = function (){
 	}
 	$(".question>i").addClass("fa fa-caret-right");
 	$(".answer").addClass("hidden");
-}	
+	
+});
 	
 //custom accordian for question answer
 $(document).on('click',".question", function(){
@@ -257,22 +286,25 @@ $("#post_form").submit(function(event){
     $(".answer").removeClass("hidden");
 	$(".question>i").removeClass("fa fa-caret-right");
 	$(".question>i").removeClass("fa fa-caret-down");
-	var content = $("#dropbox").html() + $("#questions").html();
+	var content = tinyMCE.get('fake_content').getContent();
+	content += $("#questions").html();
 	$("#id_content").val(content);
 	debugger
 	return true;
 	});
 //Script to trigger file upload selected by button
-$('#post-image-selector').on('change',function(){
+function uploadFiles(editor){
+	$('#post-image-selector').on('change',function(){
 
-	var files = $('#post-image-selector')[0].files;
-	var count = files.length;
-	if(count>0){
-		for(var i=0;i<count;i++){
-			handleFiles(files[i]);
+		var files = $('#post-image-selector')[0].files;
+		var count = files.length;
+		if(count>0){
+			for(var i=0;i<count;i++){
+				handleFiles(editor,files[i]);
+			}
 		}
-	}
-});
+	});
+}
 
 //Accordian for question ans
 $(document).on('click',"#insert-question", function(){
@@ -338,16 +370,59 @@ $("#main_categories").change(function(){var selected=$("#main_categories :select
 <script>
 
 tinymce.init({
-    selector: "div.editable",
-    inline: true,
+    selector: "textarea#fake_content",
     plugins: [
         "advlist autolink lists link image charmap print preview anchor",
         "searchreplace visualblocks code fullscreen",
         "insertdatetime media table contextmenu paste"
     ],
-    toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+    toolbar: "Image DownloadFile insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+
+	content_css:["{%static 'html/css/custom.css' %}","{% static 'html/bootstrap/css/bootstrap.min.css' %}","{% static 'html/font-awesome/css/font-awesome.min.css' %}"], 
+
+   setup : function(ed) {
+		var editor = ed;
+      // Register Image button
+      ed.addButton('Image', {
+      	title : 'Insert Image',
+		text:'Image',
+         //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+        onclick : function() {
+			$("#post-image-selector").click();
+			$('#post-image-selector').on('change',function(){
+
+       			 var files = $('#post-image-selector')[0].files;
+				$("#post-image-selector-div").html("<input type=file id=\"post-image-selector\" multiple />");
+        		var count = files.length;
+        		if(count>0){
+            		for(var i=0;i<count;i++){
+                		handleFiles(editor,files[i]);
+            		}
+        		}
+    		});
+         }
+      });
+      // Register DownloadFile button
+      ed.addButton('DownloadFile', {
+        title : 'Insert Download File',
+		text:'File',
+         //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+        onclick : function() {
+			$("#download-file-selector").click();
+            $('#download-file-selector').on('change',function(){
+
+        		var files = $('#download-file-selector')[0].files;
+        		$("#download-file-selector-div").html("<input type=file id=\"download-file-selector\" />");
+               	upload2rackDownloadFile(editor,files[0]);
+    		});
+         }
+      });
+   }
 });
 
+
+
+                                                                    
 </script>
 
 <script type="text/javascript" src="{% static 'html/js/rackspace-upload.js'%}"></script>

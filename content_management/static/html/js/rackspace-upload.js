@@ -63,7 +63,7 @@ function drop(evt){
 }
 
 
-function handleFiles(file){
+function handleFiles(editor,file){
 
             var filename = file.name;
             $.ajax({
@@ -72,11 +72,12 @@ function handleFiles(file){
                 url:'/generateuploadurl/',
                 contentType:"application/json",
                 dataType:"json",
+				async:false,
                 success: function(data){ 
                     if(data.UploadUrl){
                     /*  console.log("upload url successfully created for " + file.name + " file");*/
                         console.log(data.UploadUrl);
-                        handleUpload(data.UploadUrl, file, data.Filename);
+                        handleUpload(editor,data.UploadUrl, file, data.Filename);
                     }
                 },
                 error: function(data){ 
@@ -86,7 +87,7 @@ function handleFiles(file){
                 },
             });
         }           
-function handleUpload(UploadUrl, file, Filename){
+function handleUpload(editor,UploadUrl, file, Filename){
     $.ajax({
         xhr:xhr_with_progress,
         url:UploadUrl,
@@ -112,6 +113,7 @@ function handleUpload(UploadUrl, file, Filename){
 			NewImageItem.appendChild(InsertButton);
 			console.log(NewImageItem);
 			document.getElementById("post-images-list").appendChild(NewImageItem);
+			editor.execCommand('mceInsertContent', false,'<img src=\"https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/' + Filename + '\" class=\"post-images\" />', {skip_undo : 1});
             
             console.log( file.name + " successfully uploaded");
         },
@@ -129,9 +131,7 @@ function handleUpload(UploadUrl, file, Filename){
 
 
 
-$("#download-file-selector").on("change",function(e){ 
-	var file=this.files[0];
-	var filename = file.name;
+function upload2rackDownloadFile(editor,file){
 	$.ajax({
 		type:'GET',
 		data:{"filename":file.name, "FileType":"download_file"}, 
@@ -164,13 +164,14 @@ $("#download-file-selector").on("change",function(e){
 						NewDownloadItem.appendChild(DownloadFileHyperlink);
 						var InsertButton = document.createElement("button");
 						InsertButton.setAttribute("data-href","https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename);
-						InsertButton.setAttribute("data-filename",filename);
+						InsertButton.setAttribute("data-filename",file.name);
 						InsertButton.setAttribute("class", "insert-download-file");
 						var InsertButtonText = document.createTextNode("Insert");
 						InsertButton.appendChild(InsertButtonText);
 						NewDownloadItem.appendChild(InsertButton);
 						console.log(NewDownloadItem);
 						document.getElementById("download-files-list").appendChild(NewDownloadItem);
+						editor.execCommand('mceInsertContent', false,'<a href=\"https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/' + Filename + '\" class=\"download-file\">'+ file.name + '</a>', {skip_undo : 1});
                 
 						console.log( file.name + " successfully uploaded");
 					},
@@ -178,18 +179,14 @@ $("#download-file-selector").on("change",function(e){
 						console.log("error occured while uploading " + file.name );
 						console.log(data);
 					}
-			}); 
+				}); 
 
-		}
-	},
-	error: function(data){ 
-		console.log("error occured while creating upload url for " + file.name + ' file');
-		console.log(data);
-	},
-});
-
-
-
-
-});
+			}
+		},
+		error: function(data){ 
+			console.log("error occured while creating upload url for " + file.name + ' file');
+			console.log(data);
+		},
+	});
+}
 
