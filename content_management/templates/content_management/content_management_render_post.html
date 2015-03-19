@@ -123,6 +123,11 @@ width:100%;
 					</div>
 				</div>
 			{% endif %}
+			{% if next_category %}
+				<ul class="pager">
+					<li ><a href="/subjects{{ next_category.url }}">{{next_category.name|title}}&rarr;</a></li>					
+				</ul>
+			{% endif %}
 		</div>
 {% endif %}
 </div>
@@ -159,10 +164,16 @@ $(document).on('click',".question", function(){
 </script>
 			<script>
 				next = $("#sibblings .active").next();
+				next_category = "{{next_category.id}}";
 				if (next.length>0){
 					$(".pager #next").removeClass("disabled");
 					$(".pager .next").html( next.html() + "&rarr;");
 					$(".pager .next").attr("href", next.attr("href"));
+				}
+				else if(next_category){
+					$(".pager #next").removeClass("disabled");
+					$(".pager .next").html("{{next_category.name|title}}&rarr;");
+					$(".pager .next").attr("href", "/subjects{{next_category.url}}");
 				}
 
 

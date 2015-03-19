@@ -81,6 +81,20 @@ def reorder(request):
 		return HttpResponse("thank you")
 	if request.method == "GET":
 		return render_to_response('content_management/content_management_reorder_post.html', {}, RequestContext(request))
+
+def nextCategory(category_id):
+	'''
+	Returns the next category. Used as a pager in render_post.
+	'''
+
+	try:
+		category = Category.objects.get(id=category_id)
+		next_categories = Category.objects.filter(lt__gt=category.lt, rt=F('lt')+1, published__isnull=False).order_by('lt')	
+		if next_categories:
+			return next_categories[0]
+			
+	except Category.DoesNotExist:
+		return None	
 	
 	
 def retrieve_post ( request, url, author_username=None):#store author username in post url which will make diff in url of categories and posts
@@ -90,7 +104,8 @@ def retrieve_post ( request, url, author_username=None):#store author username i
 		#requested_post = Post.objects.select_related('category').only('category__id').get( url = url, author__username = author_username, published__isnull = False )
 		requested_post = get_object_or_404( Post, url = url, author__username = author_username, published__isnull = False, draft = None, trash = None)
 		sibbling_posts = posts(requested_post.category_id)		 
-		return render_to_response('content_management/content_management_render_post.html', {'requested_post':requested_post, 'sibbling_posts':sibbling_posts }, context)
+		next_category = nextCategory(requested_post.category_id)
+		return render_to_response('content_management/content_management_render_post.html', {'requested_post':requested_post, 'sibbling_posts':sibbling_posts , 'next_category':next_category}, context)
 
 	else:
 		requested_posts_count = Post.objects.filter( url = url, published__isnull = False, trash = None, draft = None).count()
