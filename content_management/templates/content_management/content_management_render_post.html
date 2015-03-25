@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
 <style>
 body{
-background-color:#f1f1f1;
+background-color:#fafafa;
 }
 .bg-white{
 background-color:white;
@@ -21,14 +21,19 @@ border-radius:3px;
 }
 .answer{
 color:blue;
+border-radius:5px;
 }
 .question{
 cursor:pointer;
 color:green;
+border-radius:5px;
+border-bottom:2px solid #f2f2f2;
+background-color:#FAFAFA;
 }
 .questionanswer{
-border:2px solid black;
 margin-top:5px;
+border-radius:5px;
+background-color:#FAFAFA;
 }
 
 
@@ -76,12 +81,12 @@ width:100%;
 					{% endif %}
 					<li class="active"><strong>{{requested_post.category.name | capfirst}}</strong></li>
 				</ol>
-			<div id="content" style="padding-left:10px;">
+			<div id="content">
 				<div class="bg-white">
 					<h3 class="text-center" style="padding-top:5px;">{{ requested_post.post_name|title }}</h3>
-					<p style="color:#999; padding-left:6px;">{{requested_post.date_time_created|date}} by {{requested_post.author.username|title}}</p>	
+					<p style="color:#999; padding:5px;">{{requested_post.date_time_created|date}} by {{requested_post.author.username|title}}</p>	
 				</div>
-				<div class="post_content bg-white">
+				<div class="post_content bg-white" style="padding:5px;">
 				{% autoescape off %}
 					{{ requested_post.content }}
 				{% endautoescape %}
@@ -107,34 +112,42 @@ width:100%;
 		<div class="col-md-3">
 			{% if sibbling_posts %}
 				<div class="list-group" style="padding-top:20px;">
-        			<span href="#" class="list-group-item text-center">
-          				<strong style="font-size:20px;"><a href="/subjects{{ requested_post.category.parent.url }}">{{ requested_post.category.name|capfirst }}</a></strong></span> 
-            			<span class="pull-right" id="slide-submenu">
-                			<i class="fa fa-times"></i>
-        				</span>
+          			<a class="list-group-item text-center lead"  href="/subjects{{ requested_post.category.parent.url }}"><u>{{ requested_post.category.name|capfirst }}</u></a> 
 					<div id="sibblings">	
 						{%for post in sibbling_posts %}
 							{% if post.url == requested_post.url and post.author == requested_post.author %}
 								<a class='list-group-item active' href='/subjects{{post.url}}author/{{post.author.username}}'>{{post.post_name|capfirst}}</a>
 							{% else %}
-								<a class='list-group-item ' href='/subjects{{ post.url }}author/{{ post.author.username }}'> {{post.post_name|capfirst}}</a>
+								<a class='list-group-item' href='/subjects{{ post.url }}author/{{ post.author.username }}'> {{post.post_name|capfirst}}</a>
 							{% endif %}	
 						{% endfor %}
 					</div>
 				</div>
 			{% endif %}
 			{% if next_category %}
-				<ul class="pager">
-					<li ><a href="/subjects{{ next_category.url }}">{{next_category.name|title}}&rarr;</a></li>					
-				</ul>
+				<div class="list-group">
+					<a class="list-group-item text-center lead" href="/subjects{{ next_category.url }}"><u>{{next_category.name|title}}</u>&nbsp;&rarr;</a>					
+				</div>
 			{% endif %}
 		</div>
 {% endif %}
 </div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'teachoo-1';
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
 
 <script>
 //ques ans
@@ -156,23 +169,18 @@ $(document).on('click',".question", function(){
 });
 
 
-    $(function() {
-      $( "#questions" ).accordion({
-      heightStyle:"content", collapsible:true
-      });
-    });
 </script>
 			<script>
 				next = $("#sibblings .active").next();
 				next_category = "{{next_category.id}}";
 				if (next.length>0){
 					$(".pager #next").removeClass("disabled");
-					$(".pager .next").html( next.html() + "&rarr;");
+					$(".pager .next").html( next.html() + "&nbsp;&rarr;");
 					$(".pager .next").attr("href", next.attr("href"));
 				}
 				else if(next_category){
 					$(".pager #next").removeClass("disabled");
-					$(".pager .next").html("{{next_category.name|title}}&rarr;");
+					$(".pager .next").html("{{next_category.name|title}}&nbsp;&rarr;");
 					$(".pager .next").attr("href", "/subjects{{next_category.url}}");
 				}
 

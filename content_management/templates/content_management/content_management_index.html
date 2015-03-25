@@ -1,13 +1,18 @@
-{% extends "content_management/content_management_base.html" %}
+{% extends 'content_management/content_management_base.html' %}
 {% load static %}
 {% block body %}
+<style>
+.thumbnail{
+border:none;
+}
+</style>
 
 {% if posts %}
 {% for post in posts %}
 <li><a href="/subjects{{post.url}}author/{{post.author.username}}">{{post.post_name}}:{{post.title}}</a>
 {% endfor %}
 {% endif %}
-<div class="container-fluid" style="text-align:center; padding-top:150px;" >
+<div class="container" style="text-align:center; padding-top:150px;" >
 	<div class="row" style="background-image:'{% static "html/img/learn.jpg" %}'">
 		<h1 style="margin-top:50px; color:blue;">I want to study ...</h1>
 		<div class="col-sm-3 col-sm-offset-3">
@@ -25,44 +30,63 @@
 		
 		<div class="col-sm-3">
 			<select id="subcategories" style="margin-top:10px;" size="1" class="form-control" disabled>
-				<option>Select Sub-Topic </option>
+				<option value="#">Select Sub-Topic</option>
 			</select>
 		</div>
 
-		<div class="col-sm-1">
-			<a id="go" href = "" ><button type="button" style="margin-top:10px;" class="btn btn-default" >Go....</button></a>
-		</div>
 	</div>
 	<hr>
-	<div class="row" style="padding-top:50px;">
-		<div class="col-md-3">
-			<a href="#" class="thumbnail">
-				<img src='{% static "html/img/excel.jpg" %}' style="min-height:100px; height=100px">
+<div class="col-md-4 col-md-offset-2">
+	<div class="row">
+		<div class="col-xs-6 ">
+			<a href="http://www.teachoo.com/subjects/cbse-maths/" class="thumbnail">
+				<img src='{% static "html/img/cbse_maths_circle.png" %}' >
 			</a>
 		</div>
 		
-		<div class="col-md-3">
-			<a href="#" class="thumbnail">
-				<img src='{%static "html/img/maths.jpg" %}' style="min-height:195px; height=100px" >
+		<div class="col-xs-6">
+			<a href="http://www.teachoo.com/subjects/income-tax/" class="thumbnail">
+				<img src='{%static "html/img/income_tax_circle.png" %}' >
 			</a>
 		</div>
-
-		<div class="col-md-3">
-			<a href="#" class="thumbnail">
-				<img src='{%static "html/img/tax.jpg" %}' style="min-height:195px;" >
-			</a>
-		</div>
-		<div class="col-md-3">
-			<a href="#" class="thumbnail">
-				<img src='{%static "html/img/language.jpg" %}' style="height:198px; width:100%;" >
-			</a>
-		</div>
+	</div>
 </div>
-
+<div class="col-md-4">
+	<div class="row">
+		<div class="col-xs-6">
+			<a href="http://www.teachoo.com/subjects/practical-taxation/" class="thumbnail">
+				<img src='{%static "html/img/practical_taxation_circle.png" %}' >
+			</a>
+		</div>
+		<div class="col-xs-6">
+			<a href="http://www.teachoo.com/subjects/practical-accounting/" class="thumbnail">
+				<img src='{%static "html/img/practical_accounting_circle.png" %}' >
+			</a>
+		</div>
+	</div>
+</div>
+<div class="col-md-offset-4 col-md-4">
+	<div class="row">
+		<div class="col-xs-6">
+			<a href="#" class="thumbnail">
+				<img src='{%static "html/img/tally_circle.png" %}' >
+			</a>
+		</div>
+		<div class="col-xs-6">
+			<a href="#" class="thumbnail">
+				<img src='{%static "html/img/language_circle.png" %}'>
+			</a>
+		</div>
+	</div>
+</div>
 <script> 
-$("#main_categories").change(function(){ $.get('/updatesubcategories/',{"category_id":this.value},function(data){console.log(data);var subcategories=$("#subcategories"); subcategories.html(data); subcategories.prop("disabled", false);$("#go").attr('href',subcategories.val());});});
+$("#main_categories").change(function(){$.get('/updatesubcategories/',{"category_id":this.value},function(data){var subcategories=$("#subcategories"); subcategories.html(data); subcategories.prop("disabled", false);});});
 
-$("#main_categories,#subcategories").change(function(){$("#go").attr('href',$("#subcategories").val());});
+$("#main_categories,#subcategories").change(function(){
+	var nextLink = $("#subcategories").val();
+	if(nextLink!="#" && nextLink!=null)
+		window.location.href=nextLink;
+});
 </script>
 {% endblock %}
 

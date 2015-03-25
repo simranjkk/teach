@@ -49,7 +49,7 @@ def subCategoriesHtml(request):
 	if request.method=="GET":
 		subCategories = subcategories(request.GET["category_id"])
 		if subCategories:
-			options=''
+			options='<option value=\"#\">Select Sub-Topic</option>'
 			for category in subCategories:
 				options+="<option value=\"/subjects" + str(category.url) + "\">" + category.name + "</option>"
 			return HttpResponse(options)

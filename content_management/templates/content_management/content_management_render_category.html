@@ -22,13 +22,13 @@
 						{% if grouped_result.list|length > 1 %}
 							{% for result in grouped_result.list %}
 								{% if forloop.first %}
-									<h2><a target="_blank" href ="/subjects{{ result.url }}">{{ result.post_name|capfirst }}</a></h2>
+									<h2><a  href ="/subjects{{ result.url }}">{{ result.post_name|capfirst }}</a></h2>
 								{% endif %}
-								<p><a target="_blank" href ="/subjects{{ result.url }}author/{{ result.author.username }}">{{ result.post_name|capfirst }} by {{result.author.username}}</a></p>
+								<p><a  href ="/subjects{{ result.url }}author/{{ result.author.username }}">{{ result.post_name|capfirst }} by {{result.author.username}}</a></p>
 							{% endfor %}
 						{% else %}
 							{% for result in grouped_result.list %}
-								<h2><a target="_blank" href ="/subjects{{ result.url }}author/{{ result.author.username }}">{{ result.post_name|capfirst }}</a></h2>
+								<h2><a  href ="/subjects{{ result.url }}author/{{ result.author.username }}">{{ result.post_name|capfirst }}</a></h2>
 								<p>{{ result.excerpt }}</p>
 								<!--<i class="fa fa-thumbs-up"></i> {{ result.likes }} Likes-->
 							{% endfor %}
@@ -43,9 +43,9 @@
 					{% if result.parent == requested_category %}
 
 					<hr>
-					<h3 class="maincategory"><a target="blank" href="/subjects{{result.url}}">{{ result.name|capfirst }}</a></h3>
+					<h3 class="maincategory"><a  href="/subjects{{result.url}}">{{ result.name|capfirst }}</a></h3>
 					{% else%}
-				<span class="subcategory"><i class="fa fa-paper-plane"></i>&nbsp;<a target="_blank" href="/subjects{{result.url}}">{{result.name|capfirst}}</a></span>
+				<span class="subcategory"><i class="fa fa-paper-plane"></i>&nbsp;<a  href="/subjects{{result.url}}">{{result.name|capfirst}}</a></span>
 							{% endif %}
 						{% endfor %}
 							<hr>

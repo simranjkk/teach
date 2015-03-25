@@ -1,0 +1,430 @@
+{% extends "content_management/content_management_base.html" %}
+{% load static %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'html/css/custom.css' %}">
+{% endblock %}
+
+{% block body %}	
+<style>
+</style>
+
+	<div class="row">
+		<div class="col-md-12 text-center">
+			<h1><u> Add New Post</u></h1><hr>
+		</div>
+	</div>
+
+	<div class="row">
+<form id="post_form" method="post" action="/create/post/">
+	{% csrf_token %}
+	{{ form.non_field_errors }}
+	<div class="col-md-2 text-center">
+		<h3>Select Category</h3>
+
+
+
+<select id="main_categories" style="margin-top:10px;"  size="1" class="form-control"> 
+		<option value="0">Select Category</option>
+		{% if categories %}
+		{% for category in categories %}
+		{% if category.level == 1 %}
+		<option value="" data-lt={{ category.lt }} data-rt={{ category.rt }} >{{ category.name }}</option>
+		{% endif %}
+		{% endfor %}
+		{% endif %}
+	</select>
+
+
+
+<select id="id_category" name="category" style="margin-top:10px;" size="1" class="form-control" disabled>
+		<option>Select Sub-Category </option>
+	</select>
+
+		{% if form.category.errors %}
+			{% for error in form.category.errors %}
+				<div class="alert alert-danger">{{error|escape }}</div>
+			{% endfor %}
+		{% endif %}
+	</div>	
+
+<div class="col-md-8" style="padding:20px 0;">
+
+	<div class="row form-group">
+		<div class="col-md-1 col-sm-1">
+			<label for="{{ form.post_name.id_for_label }}" class="col-md-2"> Post Name:</label>
+		</div>
+		<div class="col-md-10 col-sm-10">
+			<input type="text" name="post_name" maxlength="100" id="{{ form.post_name.id_for_label }}" class="form-control" value="{{ form.post_name.value }}"/>
+		</div>
+		<div class="col-md-1 col-sm-1">
+		</div>
+		{% if form.post_name.errors %}
+			{% for error in form.post_name.errors %}
+				<div class="alert alert-danger">{{error|escape }}</div>
+			{% endfor %}
+		{% endif %}
+	</div>
+
+			<input type="hidden"  value="{{ form.content.value }}" name="content" id={{ form.content.id_for_label }} />
+			{% if form.content.errors %}
+           		{% for error in form.content.errors %}
+              		<div class="alert alert-danger">{{error|escape }}</div>
+            	{% endfor %}
+        	{% endif %}
+
+	<div class="row ">
+		<div class="col-md-6">
+			<label for="{{ form.transcript.id_for_label }}" class="col-md-2"> Transcript:</label>
+			<textarea name="transcript" id="{{ form.transcript.id_for_label }}" class="form-control">{{ form.transcript.value }}</textarea>
+		 {% if form.transcript.errors %}
+			{% for error in form.transcript.errors %}
+				<div class="alert alert-danger">{{error|escape }}</div>
+			{% endfor %}
+		 {% endif %}
+		</div>
+
+
+		<div class="col-md-6">
+			<label for="{{ form.keywords.id_for_label }}" class="col-md-2"> Keywords:</label>
+			<input type="text" name="keywords" maxlength="500" id="{{ form.keywords.id_for_label }}" class="form-control" value="{{ form.keywords.value }}"/>
+			{% if form.keywords.errors %}
+				{% for error in form.keywords.errors %}
+					<div class="alert alert-danger">{{error|escape }}</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+</div>
+<div class="col-md-2 text-center" style="padding-top:10px;">
+	<div><input type="submit" value="Publish" name="publish" class="btn btn-md btn-success"/></div><br>	
+	<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-md btn-primary"/></div><br>
+	{% if request.user.is_staff %}
+	<div><input type="submit" value="Publish & Create Another" name="publishandcreate" class="btn btn-md btn-success"/></div><br>	
+	{% endif %}
+</div>
+</form>
+	</div>		
+
+<div class="container ">
+			<h3 class="text-center">Create your post</h3>
+			<textarea id="fake_content"></textarea>
+	<hr>
+	<div class="row">
+	
+		<div class="col-md-3">
+		
+		</div>
+
+
+		<div class="col-md-9">
+			<p class="lead"> Upload Status</p>
+    		<div id="progress-bar" class="progress">
+        		<div class="progress-bar"></div>
+    		</div>
+		</div>
+	</div>
+
+
+	<div class="row">
+		<hr>
+		<div class="col-md-3 col-md-push-9">
+			<div>
+				<p><strong><u> Upload Post Image</u></strong></p>
+				<div id="post-image-selector-div">
+					<input type="file" id="post-image-selector" multiple/>
+				</div>
+				<ol id="post-images-list" class="list-group" >
+				<ol>
+			</div>
+			<div>
+				<p><strong><u> Upload Download File</u></strong></p>
+				<div id="download-file-selector-div">
+					<input type="file" id="download-file-selector"/>
+				</div>
+				<ol id="download-files-list">
+				<ol>
+			</div>
+		</div>
+		<div class="col-md-9 col-md-pull-3">
+			<hr>
+			<div class="row">
+				<div class="col-sm-6">
+					<button id="insertQuestion">Add question</button>
+				</div>
+				<div class="col-sm-6">
+					<button id="createQuestions" >Create questions</button>
+				</div>
+			<form id="composeQuestions" >
+			</form>
+			<div id="questions"></div>
+
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript" src="{% static 'html/js/sisyphus.min.js' %}"></script>
+<script type="text/javascript"> 
+
+//Insert QuestionAnswerGroup to create new question on button click
+$("#insertQuestion").on("click",function(){
+	var QuestionAnswerGroup = document.createElement("div");
+	var QuestionField = document.createElement("input")
+	QuestionField.setAttribute("type", "text");
+	QuestionField.setAttribute("class", "questionText");
+	var AnswerField = document.createElement("textarea");
+	AnswerField.setAttribute("class", "answerText tinymce");
+	var DeleteButton = document.createElement("button");
+	DeleteButton.setAttribute("class", "deleteQuestionAnswerGroup");
+	var DeleteButtonText = document.createTextNode("Delete")
+	DeleteButton.appendChild(DeleteButtonText);
+	QuestionAnswerGroup.appendChild(QuestionField);
+	QuestionAnswerGroup.appendChild(AnswerField);
+	QuestionAnswerGroup.appendChild(DeleteButton);
+	$("#composeQuestions").append(QuestionAnswerGroup);
+tinymce.init({
+    selector: "textarea.answerText",
+    plugins: [
+        "advlist autolink lists link image charmap print preview anchor",
+        "searchreplace visualblocks code fullscreen",
+        "insertdatetime media table contextmenu paste"
+    ],
+    toolbar: "Image DownloadFile insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+
+    content_css:["{%static 'html/css/custom.css' %}","{% static 'html/bootstrap/css/bootstrap.min.css' %}","{% static 'html/font-awesome/css/font-awesome.min.css' %}"], 
+
+   setup : function(ed) {
+        var editor = ed;
+      // Register Image button
+      ed.addButton('Image', {
+        title : 'Insert Image',
+        text:'Image',
+         //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+        onclick : function() {
+            $("#post-image-selector").click();
+            $('#post-image-selector').on('change',function(){
+
+                 var files = $('#post-image-selector')[0].files;
+                $("#post-image-selector-div").html("<input type=file id=\"post-image-selector\" multiple />");
+                var count = files.length;
+                if(count>0){
+                    for(var i=0;i<count;i++){
+                        handleFiles(editor,files[i]);
+                    }
+   }
+            });
+         }
+      });
+      // Register DownloadFile button
+      ed.addButton('DownloadFile', {
+        title : 'Insert Download File',
+        text:'File',
+         //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+        onclick : function() {
+            $("#download-file-selector").click();
+            $('#download-file-selector').on('change',function(){
+
+                var files = $('#download-file-selector')[0].files;
+                $("#download-file-selector-div").html("<input type=file id=\"download-file-selector\" />");
+                upload2rackDownloadFile(editor,files[0]);
+            });
+         }
+      });
+   }
+});
+	
+	});
+//Delete corresponding QuestionAnswerGroup on delete button click
+$(document).on("click", ".deleteQuestionAnswerGroup", function(){
+	$(this).parent()[0].remove();		
+	});
+
+$("#createQuestions").on("click",function(){
+	var Questions = $("#composeQuestions").children();
+	var QuestionsHtml = "";
+	$.each(Questions, function(index, Question){
+	var QuestionText = Question.children[0].value;
+	var AnswerId = Question.children[2].getAttribute("id");
+	var AnswerText = tinyMCE.get(AnswerId).getContent();
+		if(QuestionText || AnswerText){
+			 QuestionsHtml += "<div class=questionanswer ><p class=question><i></i>" + QuestionText + "</p><div class=answer>" + AnswerText + "</div></div>";
+			console.log(QuestionsHtml);
+		}
+	});
+	$("#questions").html(QuestionsHtml);
+	if($(".question>i").hasClass("fa-caret-down")){
+		$(".question>i").removeClass("fa-caret-down");
+	}
+	$(".question>i").addClass("fa fa-caret-right");
+	$(".answer").addClass("hidden");
+	
+});
+	
+//custom accordian for question answer
+$(document).on('click',".question", function(){
+	var caret = $(this).find('i');
+	if (caret.hasClass("fa-caret-right")){
+		caret.removeClass("fa-caret-right");
+		caret.addClass("fa-caret-down");
+	}
+	else if (caret.hasClass("fa-caret-down")){
+		caret.removeClass("fa-caret-down");
+		caret.addClass("fa-caret-right");
+	}
+	$(this).next('.answer').toggleClass("hidden");
+});
+$( document ).ready(function() {
+	$("#dropbox").html($("#id_content").html());
+	$(".question>i").addClass("fa fa-caret-right");
+	$(".answer").addClass("hidden");
+	
+});
+
+//copy post content to form field from div on form submission
+$("#post_form").submit(function(event){
+    $(".answer").removeClass("hidden");
+	$(".question>i").removeClass("fa fa-caret-right");
+	$(".question>i").removeClass("fa fa-caret-down");
+	var content = tinyMCE.get('fake_content').getContent();
+	content += $("#questions").html();
+	$("#id_content").val(content);
+	debugger
+	return true;
+	});
+//Script to trigger file upload selected by button
+function uploadFiles(editor){
+	$('#post-image-selector').on('change',function(){
+
+		var files = $('#post-image-selector')[0].files;
+		var count = files.length;
+		if(count>0){
+			for(var i=0;i<count;i++){
+				handleFiles(editor,files[i]);
+			}
+		}
+	});
+}
+
+//Accordian for question ans
+$(document).on('click',"#insert-question", function(){
+	var QuestionItem = document.createElement("div");
+	QuestionItem.setAttribute("class","question-item");
+	var Question = document.createElement("p");
+	Question.setAttribute("class","question");
+	var QuestionText = document.createTextNode("Please write your question.");
+	Question.appendChild(QuestionText);
+	QuestionItem.appendChild(Question);
+	var Answer = document.createElement("p");
+	Answer.setAttribute("class","answer");
+	var AnswerText = document.createTextNode("Provide your answer here...");
+	Answer.appendChild(AnswerText);
+	QuestionItem.appendChild(Answer); 	
+});
+//To insert image in editor on insert button click
+$(document).on('click','.insert-post-image',function(){
+    var src = $(this).attr('data-src');
+	var editor = tinyMCE.get('dropbox');                // get editor instance
+	var range = editor.selection.getRng();                  // get range
+	var Image = editor.getDoc().createElement ( "img" );  // create img node
+	Image.setAttribute("src",src);
+	Image.setAttribute("class","post-images");
+	range.insertNode(Image);      
+});
+//To insert download file in editor on insert button click
+$(document).on('click','.insert-download-file',function(){
+    var href = $(this).attr('data-href');
+    var filename = $(this).attr('data-filename');
+	var editor = tinyMCE.get('dropbox');                // get editor instance
+	var range = editor.selection.getRng();                  // get range
+	var DownloadFile = editor.getDoc().createElement ("p");  
+	DownloadFile.setAttribute("class","download-file");
+	var DownloadFileText = editor.getDoc().createTextNode(filename);
+	DownloadFile.appendChild(DownloadFileText);
+	var DownloadButton = editor.getDoc().createElement("a");
+	DownloadButton.setAttribute("href",href);
+	DownloadButton.setAttribute("class","download-button");
+	var DownloadButtonText = editor.getDoc().createTextNode("Download");
+	DownloadButton.appendChild(DownloadButtonText);
+	DownloadFile.appendChild(DownloadButton);
+	range.insertNode(DownloadFile);      
+});
+//To toggle width of post images from 75% to 100% onclick
+$(document).ready(function(){
+    $(".post-images").click(function(){
+        $(this).toggleClass('enlarged');
+    });
+});
+
+// Code to auto save form text while typing
+$( function(){
+	$("#post_form").sisyphus();
+});
+
+//Ajax to load leaf categories on selecting main category
+$("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){$("#id_category").html(data); $('#id_category').prop("disabled", false);console.log(data);});})
+
+</script>
+
+<script type="text/javascript" src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+<script>
+
+tinymce.init({
+    selector: "textarea#fake_content",
+    plugins: [
+        "advlist autolink lists link image charmap print preview anchor",
+        "searchreplace visualblocks code fullscreen",
+        "insertdatetime media table contextmenu paste"
+    ],
+    toolbar: "Image DownloadFile insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+
+	content_css:["{%static 'html/css/custom.css' %}","{% static 'html/bootstrap/css/bootstrap.min.css' %}","{% static 'html/font-awesome/css/font-awesome.min.css' %}"], 
+
+   setup : function(ed) {
+		var editor = ed;
+      // Register Image button
+      ed.addButton('Image', {
+      	title : 'Insert Image',
+		text:'Image',
+         //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+        onclick : function() {
+			$("#post-image-selector").click();
+			$('#post-image-selector').on('change',function(){
+
+       			 var files = $('#post-image-selector')[0].files;
+				$("#post-image-selector-div").html("<input type=file id=\"post-image-selector\" multiple />");
+        		var count = files.length;
+        		if(count>0){
+            		for(var i=0;i<count;i++){
+                		handleFiles(editor,files[i]);
+            		}
+        		}
+    		});
+         }
+      });
+      // Register DownloadFile button
+      ed.addButton('DownloadFile', {
+        title : 'Insert Download File',
+		text:'File',
+         //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+        onclick : function() {
+			$("#download-file-selector").click();
+            $('#download-file-selector').on('change',function(){
+
+        		var files = $('#download-file-selector')[0].files;
+        		$("#download-file-selector-div").html("<input type=file id=\"download-file-selector\" />");
+               	upload2rackDownloadFile(editor,files[0]);
+    		});
+         }
+      });
+   }
+});
+
+
+
+                                                                    
+</script>
+
+<script type="text/javascript" src="{% static 'html/js/rackspace-upload.js'%}"></script>
+
+{% endblock %}
