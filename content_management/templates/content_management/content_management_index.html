@@ -1,11 +1,13 @@
 {% extends 'content_management/content_management_base.html' %}
 {% load static %}
-{% block body %}
+{% block stylesheets %}
 <style>
 .thumbnail{
 border:none;
 }
 </style>
+{% endblock stylesheets %}
+{% block body %}
 
 {% if posts %}
 {% for post in posts %}
@@ -13,8 +15,8 @@ border:none;
 {% endfor %}
 {% endif %}
 <div class="container" style="text-align:center; padding-top:150px;" >
-	<div class="row" style="background-image:'{% static "html/img/learn.jpg" %}'">
-		<h1 style="margin-top:50px; color:blue;">I want to study ...</h1>
+	<div class="row">
+		<h1 style="margin-top:10px; color:#52B4AF;">I want to study ...</h1>
 		<div class="col-sm-3 col-sm-offset-3">
 			<select id="main_categories" style="margin-top:10px;"  size="1" class="form-control" >
 				<option value="0">Select Topic</option>
@@ -54,13 +56,13 @@ border:none;
 <div class="col-md-4">
 	<div class="row">
 		<div class="col-xs-6">
-			<a href="http://www.teachoo.com/subjects/practical-taxation/" class="thumbnail">
-				<img src='{%static "html/img/practical_taxation_circle.png" %}' >
+			<a href="http://www.teachoo.com/subjects/practical-accounting/" class="thumbnail">
+				<img src='{%static "html/img/practical_accounting_circle.png" %}' >
 			</a>
 		</div>
 		<div class="col-xs-6">
-			<a href="http://www.teachoo.com/subjects/practical-accounting/" class="thumbnail">
-				<img src='{%static "html/img/practical_accounting_circle.png" %}' >
+			<a href="http://www.teachoo.com/subjects/practical-taxation/" class="thumbnail">
+				<img src='{%static "html/img/practical_taxation_circle.png" %}' >
 			</a>
 		</div>
 	</div>
@@ -68,13 +70,13 @@ border:none;
 <div class="col-md-offset-4 col-md-4">
 	<div class="row">
 		<div class="col-xs-6">
-			<a href="#" class="thumbnail">
-				<img src='{%static "html/img/tally_circle.png" %}' >
+			<a href="http://www.teachoo.com/subjects/excel/" class="thumbnail">
+				<img src='{%static "html/img/excel_circle.png" %}'>
 			</a>
 		</div>
 		<div class="col-xs-6">
 			<a href="#" class="thumbnail">
-				<img src='{%static "html/img/language_circle.png" %}'>
+				<img src='{%static "html/img/tally_circle.png" %}' >
 			</a>
 		</div>
 	</div>

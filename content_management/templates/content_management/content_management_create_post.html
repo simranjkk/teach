@@ -248,7 +248,7 @@ $("#createQuestions").on("click",function(){
 	var AnswerId = Question.children[2].getAttribute("id");
 	var AnswerText = tinyMCE.get(AnswerId).getContent();
 		if(QuestionText || AnswerText){
-			 QuestionsHtml += "<div class=questionanswer ><p class=question><i></i>" + QuestionText + "</p><div class=answer>" + AnswerText + "</div></div>";
+			 QuestionsHtml += "<div class=questionanswer ><p class=question><i></i>&nbsp;" + QuestionText + "</p><div class=answer>" + AnswerText + "</div></div>";
 			console.log(QuestionsHtml);
 		}
 	});
