@@ -7,6 +7,7 @@
 <a class="visible-sm visible-xs navbar-brand" href="#sibblings"><i class="fa fa-chevron-left"></i></a>
 {% endblock %}
 {% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Open+Sans">
 <style>
 body{
 background-color:#fafafa;
@@ -51,6 +52,9 @@ margin-right:auto;
 .enlarged{
 width:100%;
 }
+#post-name{
+font-size:26px;
+}
 }
 </style>
 
@@ -89,7 +93,7 @@ width:100%;
 				</ol>
 			<div id="content" class="bg-white">
 				<div>
-					<h3 class="text-center" style="padding-top:5px;font-family:'Open Sans',Helvectica">{{ requested_post.post_name|title }}</h3>
+					<h3 class="text-center" id="post-name" style="font-weight:bold;padding-top:5px;font-family:'Open Sans',Helvectica">{{ requested_post.post_name|title }}</h3>
 					<p style="color:#999; padding:5px;">{{requested_post.date_time_created|date}} by {{requested_post.author.username|title}}</p>	
 				</div>
 				<div class="post_content" style="padding:5px;font-family:'Droid Sans',Helvectica;font-size:17px">
@@ -119,7 +123,7 @@ width:100%;
 		<div class="col-md-3">
 			{% if sibbling_posts %}
 				<div class="list-group" style="padding-top:20px;">
-          			<a class="list-group-item text-center lead"  style="color:#428bca;" href="/subjects{{ requested_post.category.parent.url }}"><u>{{ requested_post.category.name|capfirst }}</u></a> 
+          			<a class="list-group-item text-center lead"  style="color:#428bca;font-weight:bold;" href="/subjects{{ requested_post.category.parent.url }}"><u>{{ requested_post.category.name|capfirst }}</u></a> 
 					<div id="sibblings">	
 						{%for post in sibbling_posts %}
 							{% if post.url == requested_post.url and post.author == requested_post.author %}
@@ -133,7 +137,7 @@ width:100%;
 			{% endif %}
 			{% if next_category %}
 				<div class="list-group">
-					<a class="list-group-item text-center lead" style="color:#428bca" href="/subjects{{ next_category.url }}"><u>{{next_category.name|title}}</u>&nbsp;&rarr;</a>					
+					<a class="list-group-item text-center lead" style="color:#428bca;font-weight:bold;" href="/subjects{{ next_category.url }}"><u>{{next_category.name|title}}</u>&nbsp;&rarr;</a>					
 				</div>
 			{% endif %}
 		</div>
