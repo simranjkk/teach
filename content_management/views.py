@@ -404,18 +404,22 @@ def generateUploadUrl(request):
 		original_filename = request.GET['filename']
 		cleaned_filename = original_filename.replace(' ', "-").replace('_','-').lower()
 		unique_filename=str(uuid.uuid4()) + cleaned_filename 
-		if request.GET['FileType'] == "post_image":
-			from teachoo_web_project.urls import post_images_container
-			post_images_container.set_metadata({'Access-Control-Allow-Origin': os.environ["DOMAIN_NAME"]})
-			UploadUrl = pyrax.cloudfiles.get_temp_url(post_images_container, unique_filename, 60, method='PUT')
+		CurrentDomain = request.META['HTTP_HOST']
+		CurrentDomain = "http://" + CurrentDomain
+		AllowedDomains = ["http://www.teachoo.com", "http://teachoo.com", os.environ["DOMAIN_NAME"]] # Change this when https is used
+		if CurrentDomain in AllowedDomains: 
+			if request.GET['FileType'] == "post_image":
+				from teachoo_web_project.urls import post_images_container
+				post_images_container.set_metadata({'Access-Control-Allow-Origin': CurrentDomain})
+				UploadUrl = pyrax.cloudfiles.get_temp_url(post_images_container, unique_filename, 60, method='PUT')
 
-		elif request.GET['FileType'] == "download_file":
-			from teachoo_web_project.urls import download_files_container
-			download_files_container.set_metadata({'Access-Control-Allow-Origin': os.environ["DOMAIN_NAME"]})
-			UploadUrl = pyrax.cloudfiles.get_temp_url(download_files_container, unique_filename, 60, method='PUT')
+			elif request.GET['FileType'] == "download_file":
+				from teachoo_web_project.urls import download_files_container
+				download_files_container.set_metadata({'Access-Control-Allow-Origin': CurrentDomain})
+				UploadUrl = pyrax.cloudfiles.get_temp_url(download_files_container, unique_filename, 60, method='PUT')
 
-		data={"UploadUrl":UploadUrl, "Filename":unique_filename}
-		return HttpResponse(json.dumps(data), content_type='application/json')			
+			data={"UploadUrl":UploadUrl, "Filename":unique_filename}
+			return HttpResponse(json.dumps(data), content_type='application/json')			
 
 
 @user_passes_test(lambda u: u.is_staff)
