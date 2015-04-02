@@ -17,9 +17,10 @@ import uuid
 
 def search(request):
 	term=request.GET['query']
-	posts = Post.objects.filter(Q(title__icontains=term)|Q(post_name__icontains=term))
+	categories = Category.objects.filter(name__icontains=term)
+	posts = Post.objects.filter(post_name__icontains=term)
 
-	return render_to_response('content_management/content_management_index.html',{'posts':posts},RequestContext(request))	
+	return render_to_response('content_management/content_management_search_results.html',{'posts':posts, 'categories':categories},RequestContext(request))	
 
 def leafCategoriesHtml(request):
 	"""updates leaf categories select list. Main Category lt and rt values are send using ajax $.get is used - createpost and reorder page"""

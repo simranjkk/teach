@@ -1,0 +1,33 @@
+{% extends 'content_management/content_management_base.html' %}
+{% block body %}
+
+<div class="container">
+{% if categories or posts %}
+	<h1 class="text-center" style="text-decoration:underline;">Search Results</h1> 
+{% else %}
+	<div class="page-header text-center alert alert-danger">
+		<h2> Oh! It seems you were finding something not available on Earth!!! <small> No results found</small></h2>
+	</div>
+{% endif %}
+
+{% if categories %}
+	<p class="lead" style="text-decoration:underline">{{categories|length}} Categories found</p>
+	<div class="list-group">
+	{% for category in categories %}
+		<a class="list-group-item" href="/subjects{{category.url}}">{{category.name|capfirst}}</a>
+	{% endfor %}
+	</div>
+{% endif %}
+
+{% if posts %}
+	<p class="lead" style="text-decoration:underline">{{posts|length}} Posts found</p>
+	<div class="list-group">
+	{% for post in posts %}
+		<a class="list-group-item" href="/subjects{{post.url}}author/{{post.author.username}}"><span class="lead">{{post.post_name|capfirst}}</span> in {{post.category.name|capfirst}}</a>
+	{% endfor %}
+	</div>
+{% endif %}
+</div>
+
+{% endblock body%}
+
