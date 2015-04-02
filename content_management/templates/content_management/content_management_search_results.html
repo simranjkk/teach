@@ -2,27 +2,28 @@
 {% block body %}
 
 <div class="container">
-{% if categories or posts %}
+{% if result_categories or result_posts %}
 	<h1 class="text-center" style="text-decoration:underline;">Search Results</h1> 
 {% else %}
 	<div class="page-header text-center alert alert-danger">
-		<h2> Oh! It seems you were finding something not available on Earth!!! <small> No results found</small></h2>
+		<h3> Oh! It seems you were finding something not available on Earth!!! </h3>
 	</div>
+	<p class="lead text-center"> No results found</p>
 {% endif %}
 
-{% if categories %}
-	<p class="lead" style="text-decoration:underline">{{categories|length}} Categories found</p>
+{% if result_categories %}
+	<p class="lead" style="text-decoration:underline">{{result_categories|length}} Categories found</p>
 	<div class="list-group">
-	{% for category in categories %}
-		<a class="list-group-item" href="/subjects{{category.url}}">{{category.name|capfirst}}</a>
+	{% for category in result_categories %}
+		<a class="list-group-item" href="/subjects{{category.url}}"><span class="lead">{{category.name|capfirst}}</span> in {{category.parent.name|capfirst}}</a>
 	{% endfor %}
 	</div>
 {% endif %}
 
-{% if posts %}
-	<p class="lead" style="text-decoration:underline">{{posts|length}} Posts found</p>
+{% if result_posts %}
+	<p class="lead" style="text-decoration:underline">{{result_posts|length}} Posts found</p>
 	<div class="list-group">
-	{% for post in posts %}
+	{% for post in result_posts %}
 		<a class="list-group-item" href="/subjects{{post.url}}author/{{post.author.username}}"><span class="lead">{{post.post_name|capfirst}}</span> in {{post.category.name|capfirst}}</a>
 	{% endfor %}
 	</div>
