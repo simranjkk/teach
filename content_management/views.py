@@ -216,7 +216,7 @@ def edit_post(request, post_id):
 		post = Post.objects.get( id = post_id )
 		if request.user.id == post.author_id:
 			if request.method == 'POST':
-				form = PostForm( request.POST,author=request.user, id_post=post.id, instance = post)
+				form = PostForm( request.POST, author = request.user, id_post = post.id, instance = post)
 				if form.is_valid():
 					edited_post = form.save( commit = False )
 					edited_post.title=edited_post.category.url.replace('/',' ')
@@ -352,7 +352,7 @@ def create_post(request):
 
 	context = RequestContext(request)
 	if request.method == 'POST':
-		form = PostForm(request.POST, author=request.user)
+		form = PostForm( request.POST, author = request.user )
 			
 		if form.is_valid():
 			post=form.save(commit=False)

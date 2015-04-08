@@ -1,15 +1,4 @@
 /* content_management app's css file */
-.answer{
-	color:blue;
-}
-.question{
-	cursor:pointer;
-	color:green;
-}
-.questionanswer{
-	border:2px solid black;
-	margin-top:5px;
-}
 .post-images{
 	width:100%;
 }

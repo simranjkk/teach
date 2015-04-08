@@ -1,9 +1,10 @@
 {% extends "content_management/content_management_base.html" %}
 {% load static %}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{% static 'html/css/custom.css' %}">
+{% endblock stylesheets %}
 
 {% block body %}	
-<style>
-</style>
 
 	<div class="row">
 		<div class="col-md-12 text-center">
@@ -12,112 +13,183 @@
 	</div>
 
 	<div class="row">
-		<form id="post_form" method="post" action="/edit/post/{{ post_id }}/">
-			{% csrf_token %}
-			<div class="col-md-2 text-center">
-				<h3>Select Category</h3>
-				{{ form.category }}
-				{% if form.category.errors %}
-					{% for error in form.category.errors %}
-						<div class="alert alert-danger">{{error|escape }}</div>
-					{% endfor %}
-				{% endif %}
-			</div>	
+<form id="post_form" method="post" action="/edit/post/{{ post_id }}/">
+	{% csrf_token %}
+	{{ form.non_field_errors }}
+	<div class="col-md-2 text-center">
+		<h3>Select Category</h3>
 
-		<div class="col-md-8">
-			<div class="row form-group">
-				<div class="col-md-1 col-sm-1">
-					<label for="{{ form.post_name.id_for_label }}" class="col-md-2"> Post Name:</label>
-				</div>
-				<div class="col-md-10 col-sm-10">
-					<input type="text" name="post_name" maxlength="100" id="{{ form.post_name.id_for_label }}" class="form-control" value="{{ form.post_name.value }}"/>
-				</div>
-				<div class="col-md-1 col-sm-1">
-				</div>
-				{% if form.post_name.errors %}
-					{% for error in form.post_name.errors %}
-						<div class="alert alert-danger">{{error|escape }}</div>
-					{% endfor %}
-				{% endif %}
-			</div>
+	{{ form.category }}
 
-			<textarea name="content" id="{{ form.content.id_for_label }}">
-			{{ form.content.value }}&nbsp;
-			</textarea>
-			<script src="http://cdn.ckeditor.com/4.4.7/standard/ckeditor.js"></script>
-			<!--<script src="http://cdn.ckeditor.com/4.4.7/basic/ckeditor.js"></script>
-			<script src="http://cdn.ckeditor.com/4.4.7/full/ckeditor.js"></script>-->
-			<script>
-				// Replace the <textarea id="editor1"> with a CKEditor instance, using default configuration.
-				CKEDITOR.replace('content');
-			</script>
-			{% if form.content.errors %}
-             	{% for error in form.content.errors %}
-                   	<div class="alert alert-danger">{{error|escape }}</div>
-                {% endfor %}
-            {% endif %}
+		{% if form.category.errors %}
+			{% for error in form.category.errors %}
+				<div class="alert alert-danger">{{error|escape }}</div>
+			{% endfor %}
+		{% endif %}
+	</div>	
 
-		
-			<div class="row ">
-				<div class="col-md-6">
-					<label for="{{ form.transcript.id_for_label }}" class="col-md-2"> Transcript:</label>
-					<textarea name="transcript" id="{{ form.transcript.id_for_label }}" class="form-control">{{ form.transcript.value }}</textarea>
-				 {% if form.transcript.errors %}
-                 	{% for error in form.transcript.errors %}
-                    	<div class="alert alert-danger">{{error|escape }}</div>
-                    {% endfor %}
-                 {% endif %}
-				</div>
+<div class="col-md-8" style="padding:20px 0;">
 
-
-				<div class="col-md-6">
-					<label for="{{ form.keywords.id_for_label }}" class="col-md-2"> Keywords:</label>
-					<input type="text" name="keywords" maxlength="500" id="{{ form.keywords.id_for_label }}" class="form-control" value="{{ form.keywords.value }}"/>
-					{% if form.keywords.errors %}
-                    	{% for error in form.keywords.errors %}
-                        	<div class="alert alert-danger">{{error|escape }}</div>
-                    	{% endfor %}
-					{% endif %}
-				</div>
-			</div>
+	<div class="row form-group">
+		<div class="col-md-1 col-sm-1">
+			<label for="{{ form.post_name.id_for_label }}" class="col-md-2"> Post Name:</label>
 		</div>
-		<div class="col-md-2 text-center" style="padding-top:10px;">
-			<div><input type="submit" value="Publish" name="publish" class="btn btn-lg btn-success"/></div><br>	
-			<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-lg btn-primary"/></div><br>
+		<div class="col-md-10 col-sm-10">
+			<input type="text" name="post_name" maxlength="100" id="{{ form.post_name.id_for_label }}" class="form-control" value="{{ form.post_name.value }}"/>
 		</div>
-		</form>
-	</div>		
-
-<div class="container text-center">
-<div class="row">
-	<div id="dropbox" class="col-md-offset-2 col-md-5" style="height:250px; border:2px dashed red;">
-		<h2>"Drop files here"</h2><br>
-		<p class="lead">Avoid special characters like @ $ % & $ ^ in filenames </p>
+		<div class="col-md-1 col-sm-1">
+		</div>
+		{% if form.post_name.errors %}
+			{% for error in form.post_name.errors %}
+				<div class="alert alert-danger">{{error|escape }}</div>
+			{% endfor %}
+		{% endif %}
 	</div>
-	<div class="col-md-offset-1 col-md-3">
-		<p class="lead"> <u>Download File</u></p>
-		<input type="file" id="downloadfile"/>
+
+
+	<div class="row ">
+		<div class="col-md-6">
+			<label for="{{ form.transcript.id_for_label }}" class="col-md-2"> Transcript:</label>
+			<textarea name="transcript" id="{{ form.transcript.id_for_label }}" class="form-control">{{ form.transcript.value }}</textarea>
+		 {% if form.transcript.errors %}
+			{% for error in form.transcript.errors %}
+				<div class="alert alert-danger">{{error|escape }}</div>
+			{% endfor %}
+		 {% endif %}
+		</div>
+
+
+		<div class="col-md-6">
+			<label for="{{ form.keywords.id_for_label }}" class="col-md-2"> Keywords:</label>
+			<input type="text" name="keywords" maxlength="500" id="{{ form.keywords.id_for_label }}" class="form-control" value="{{ form.keywords.value }}"/>
+			{% if form.keywords.errors %}
+				{% for error in form.keywords.errors %}
+					<div class="alert alert-danger">{{error|escape }}</div>
+				{% endfor %}
+			{% endif %}
+		</div>
 	</div>
 </div>
+<div class="col-md-2 text-center" style="padding-top:10px;">
+	<div><input type="submit" value="Publish" name="publish" class="btn btn-md btn-success"/></div><br>	
+	<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-md btn-primary"/></div><br>
+</div>
+	</div>		
+
+<div class="container ">
+			<h3 class="text-center">Edit your post</h3>
+			<textarea name="content" id={{ form.content.id_for_label }}>{{ form.content.value }}</textarea>
+			{% if form.content.errors %}
+           		{% for error in form.content.errors %}
+              		<div class="alert alert-danger">{{error|escape }}</div>
+            	{% endfor %}
+        	{% endif %}
+	<hr>
+</form>
 
 
+			<p class="lead"> Upload Status</p>
+    		<div id="progress-bar" class="progress">
+        		<div class="progress-bar"></div>
+    		</div>
 
 
-    <div id="progress-bar" class="progress">
-        <div class="progress-bar"></div>
-    </div>
-
-
+	<div class="row">
+		<hr>
+		<div class="col-md-3 col-md-push-9">
+			<div>
+				<p><strong><u>Post Images</u></strong></p>
+				<div id="post-image-selector-div">
+					<input class="hidden" type="file" id="post-image-selector" multiple/>
+				</div>
+				<ol id="post-images-list" class="list-group" >
+				<ol>
+			</div>
+			<div>
+				<p><strong><u>Download Files</u></strong></p>
+				<div id="download-file-selector-div">
+					<input class="hidden" type="file" id="download-file-selector"/>
+				</div>
+				<ol id="download-files-list">
+				<ol>
+			</div>
+		</div>
 </div>
 
 {% endblock %}
 {% block scripts %}
-<script type="text/javascript" src="{% static 'html/js/sisyphus.min.js' %}"></script>
+<script type="text/javascript" src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+<script type="text/javascript" src="{% static 'html/js/rackspace-upload.js' %}"></script>
 <script type="text/javascript"> 
-// Code to auto save form text while typing
-$( function(){
-	$("#post_form").sisyphus();
+
+$( document ).ready(function() {
+	
+//To toggle width of post images from 75% to 100% onclick
+    $(".post-images").click(function(){
+        $(this).toggleClass('enlarged');
+    });
+
+
+// Initialize post editor
+initEditor();
 });
+
+//Custom editor settings
+function initEditor(){
+    tinymce.init({
+        selector: "textarea#id_content",
+        plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste"
+        ],
+        toolbar: "Image DownloadFile insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+
+        content_css:["{% static 'html/css/custom.css' %}","{% static 'html/bootstrap/css/bootstrap.min.css' %}","{% static 'html/font-awesome/css/font-awesome.min.css' %}"],
+
+        setup : function(ed) {
+            var editor = ed;
+            // Register Image button
+            ed.addButton('Image', {
+                title : 'Insert Image',
+                text:'Image',
+                //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+                onclick : function() {
+                    $("#post-image-selector").click();
+                    $('#post-image-selector').on('change',function(){
+
+                        var files = $('#post-image-selector')[0].files;
+                        $("#post-image-selector-div").html("<input class=hidden type=file id=\"post-image-selector\" multiple />");//this is done because multiple copies of same file are uploaded because of async nature of upload method 
+                        var count = files.length;
+                        if(count>0){
+                            for(var i=0;i<count;i++){
+                                handleFiles(editor,files[i]);
+                            }   
+                        }   
+                    }); 
+             }
+            });
+            // Register DownloadFile button
+            ed.addButton('DownloadFile', {
+                title : 'Insert Download File',
+                text:'File',
+                //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
+                onclick : function() {
+                    $("#download-file-selector").click();
+                    $('#download-file-selector').on('change',function(){
+
+                        var files = $('#download-file-selector')[0].files;
+                        $("#download-file-selector-div").html("<input class=hidden type=file id=\"download-file-selector\" />");//this is done to avoid multiple copies of same file get uploaded
+                        upload2rackDownloadFile(editor,files[0]);
+                    });
+                }
+            });
+        }
+    });
+}
+
+
 </script>
-<script type="text/javascript" src="{% static 'html/js/rackspace-upload.js'%}"></script>
+
+
 {% endblock %}

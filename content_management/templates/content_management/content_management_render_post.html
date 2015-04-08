@@ -19,10 +19,10 @@ box-shadow:0 1px 2px rgba(0,0,0,.1);
 border-color:#f1f1f1;
 border-radius:3px;
 }
-.answer{
+.toggle-content{
 color:#777;
 border-radius:5px;
-padding-left:5px;
+background-color:#fdfdfd;
 }
 .question{
 cursor:pointer;
@@ -61,7 +61,6 @@ font-size:26px;
 {% endblock stylesheets %}
 
 {% block body %}
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
 
 <div class="container" >
 	<div class="row">
@@ -145,7 +144,13 @@ font-size:26px;
 </div>
 <div class="row">
 <div id="disqus_thread" class="col-md-9"></div>
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+
 <script type="text/javascript">
+	//Disqus Comments
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = 'teachoo-1';
     
@@ -155,73 +160,69 @@ font-size:26px;
         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-</div>
-</div>
-{% endblock %}
-{% block scripts %}
-
-<script>
-//ques ans
 $(document).ready(function(){
-	$(".question>i").addClass("fa fa-caret-right");
-    $(".answer").addClass("hidden");
-});
-$(document).on('click',".question", function(){
-    var caret = $(this).find('i');
-    if (caret.hasClass("fa-caret-right")){
-        caret.removeClass("fa-caret-right");
-        caret.addClass("fa-caret-down");
-    }
-    else if (caret.hasClass("fa-caret-down")){
-        caret.removeClass("fa-caret-down");
-        caret.addClass("fa-caret-right");
-    }
-    $(this).next('.answer').toggleClass("hidden");
-});
+	// Initialize toggle content to hide answer and show "view answer" button
+	initToggleContent();
 
+	// Update pager links and next category links
+	initPagerLinks();
 
-</script>
-			<script>
-				next = $("#sibblings .active").next();
-				next_category = "{{next_category.id}}";
-				if (next.length>0){
-					$(".pager #next").removeClass("disabled");
-					$(".pager .next").html( next.html() + "&nbsp;&rarr;");
-					$(".pager .next").attr("href", next.attr("href"));
-				}
-				else if(next_category){
-					$(".pager #next").removeClass("disabled");
-					$(".pager .next").html("{{next_category.name|title}}&nbsp;&rarr;");
-					$(".pager .next").attr("href", "/subjects{{next_category.url}}");
-				}
+	// Initialize transcript div to collapse transcript and add "show-more" button
+	initTranscript();	
 
-
-
-
-
-$('#transcript').css({height:'30px', overflow:'hidden'});
-$('#show-more').on('click', function() {
-    var $this = $('#transcript');
-    if ($this.data('open')) {
-        $this.animate({height:'30px'});
-        $this.data('open', 0);
-		$('#show-more').html("Show More");
-
-    }
-    else {
-        $this.animate({height:'100%'});
-        $this.data('open', 1);
-		$('#show-more').html("Show Less");
-    }
-});
-
-$(document).ready(function(){
+	//Enlarge Post Images on click
 	$(".post-images").click(function(){
 		$(this).toggleClass('enlarged');
 	});
 });
 
-			</script>
+initToggleContent = function(){
+	var PostContent = $(".post_content").html();
+	PostContent = PostContent.replace(new RegExp("--answer--","g"),"<div class=\" hidden toggle-content\">")
+	PostContent = PostContent.replace(new RegExp("--endanswer--","g"),"</div>")
+	$(".post_content").html(PostContent);
+	$("<a class=\"toggle-button \">View Answer</a>").insertBefore(".toggle-content");
+	$(document).on('click', ".toggle-button", function(){
+		$(this).next(".toggle-content").toggleClass("hidden");
+		if($(this).html() === "View Answer"){
+			$(this).html("Hide Answer");
+		} else{
+		$(this).html("View Answer");
+		}
+	});
+}
+
+initPagerLinks = function(){
+	next = $("#sibblings .active").next();
+	next_category = "{{next_category.id}}";
+	if (next.length>0){
+		$(".pager #next").removeClass("disabled");
+		$(".pager .next").html( next.html() + "&nbsp;&rarr;");
+		$(".pager .next").attr("href", next.attr("href"));
+	} else if(next_category){
+		$(".pager #next").removeClass("disabled");
+		$(".pager .next").html("{{next_category.name|title}}&nbsp;&rarr;");
+		$(".pager .next").attr("href", "/subjects{{next_category.url}}");
+	}
+}
+
+initTranscript = function(){
+	$('#transcript').css({height:'30px', overflow:'hidden'});
+	$('#show-more').on('click', function() {
+   		var $this = $('#transcript');
+   		if ($this.data('open')) {
+       		$this.animate({height:'30px'});
+       		$this.data('open', 0);
+			$('#show-more').html("Show More");
+
+   		} else {
+       		$this.animate({height:'100%'});
+       		$this.data('open', 1);
+			$('#show-more').html("Show Less");
+   		}
+	});
+}
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
 {% endblock %}

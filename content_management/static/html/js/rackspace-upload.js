@@ -30,38 +30,6 @@ window.addEventListener("drop",function(e){
 },false);
 
 
-//Event listners to listen drag and drop image in box
-var dropbox = document.getElementById("dropbox"); 
-dropbox.addEventListener("dragover",function(e){
-  e = e || event;
-  e.preventDefault();
-  $('#dropbox').css("background-color","gray");
-},false);
-
-window.addEventListener("dragleave",function(e){
-  e = e || event;
-  e.preventDefault();
-  $('#dropbox').css("background-color","white"); 
-},false);
-
-
-dropbox.addEventListener("drop",drop,false);
-
-function drop(evt){
-    $('#dropbox').css("background-color","white"); 
-    console.log("detected");
-    evt.stopPropagation();
-    evt.preventDefault();
- 
-    var files = evt.dataTransfer.files;
-    var count = files.length;
-    if(count>0){
-        for(var i=0;i<count;i++){
-            handleFiles(files[i]);
-        }
-    }
-}
-
 
 function handleFiles(editor,file){
 
@@ -105,20 +73,13 @@ function handleUpload(editor,UploadUrl, file, Filename){
 			var ImageHyperlinkText = document.createTextNode(file.name);
 			ImageHyperlink.appendChild(ImageHyperlinkText);
 			NewImageItem.appendChild(ImageHyperlink);
-			var InsertButton = document.createElement("button");
-			InsertButton.setAttribute("data-src","https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/" + Filename);
-			InsertButton.setAttribute("class", "insert-post-image");
-			var InsertButtonText = document.createTextNode("Insert");
-			InsertButton.appendChild(InsertButtonText);
-			NewImageItem.appendChild(InsertButton);
-			console.log(NewImageItem);
 			document.getElementById("post-images-list").appendChild(NewImageItem);
 			editor.execCommand('mceInsertContent', false,'<img src=\"https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/' + Filename + '\" class=\"post-images\" />', {skip_undo : 1});
             
             console.log( file.name + " successfully uploaded");
         },
         error: function(data){ 
-            console.log("error occured while uploading " + file.name );
+            alert("error occured while uploading " + file.name );
             console.log(data);
         }
     }); 
@@ -162,13 +123,6 @@ function upload2rackDownloadFile(editor,file){
 						var DownloadFileHyperlinkText = document.createTextNode(file.name);
 						DownloadFileHyperlink.appendChild(DownloadFileHyperlinkText);
 						NewDownloadItem.appendChild(DownloadFileHyperlink);
-						var InsertButton = document.createElement("button");
-						InsertButton.setAttribute("data-href","https://6f45f6c2646a5cc3b02e-5797bc788d9575a168411f50126db6ce.ssl.cf6.rackcdn.com/" + Filename);
-						InsertButton.setAttribute("data-filename",file.name);
-						InsertButton.setAttribute("class", "insert-download-file");
-						var InsertButtonText = document.createTextNode("Insert");
-						InsertButton.appendChild(InsertButtonText);
-						NewDownloadItem.appendChild(InsertButton);
 						console.log(NewDownloadItem);
 						document.getElementById("download-files-list").appendChild(NewDownloadItem);
 						editor.execCommand('mceInsertContent', false,'<a href=\"https://d77da31580fbc8944c00-52b01ccbcfe56047120eec75d9cb2cbd.ssl.cf6.rackcdn.com/' + Filename + '\" class=\"download-file\">'+ file.name + '</a>', {skip_undo : 1});
@@ -176,7 +130,7 @@ function upload2rackDownloadFile(editor,file){
 						console.log( file.name + " successfully uploaded");
 					},
 					error: function(data){ 
-						console.log("error occured while uploading " + file.name );
+						alert("error occured while uploading " + file.name );
 						console.log(data);
 					}
 				}); 
@@ -184,7 +138,7 @@ function upload2rackDownloadFile(editor,file){
 			}
 		},
 		error: function(data){ 
-			console.log("error occured while creating upload url for " + file.name + ' file');
+			console.error("error occured while creating upload url for " + file.name + ' file');
 			console.log(data);
 		},
 	});
