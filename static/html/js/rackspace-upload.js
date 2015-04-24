@@ -37,7 +37,7 @@ function handleFiles(editor,file){
             $.ajax({
                 type:'GET',
                 data:{"filename":file.name, "FileType":"post_image"},
-                url:'/generateuploadurl/',
+                url:'/dashboard/generateuploadurl/',
                 contentType:"application/json",
                 dataType:"json",
 				async:false,
@@ -96,7 +96,7 @@ function upload2rackDownloadFile(editor,file){
 	$.ajax({
 		type:'GET',
 		data:{"filename":file.name, "FileType":"download_file"}, 
-		url:'/generateuploadurl/', 
+		url:'/dashboard/generateuploadurl/', 
 		contentType:"application/json", 
 		dataType:"json", 
 		success: function(data){ 

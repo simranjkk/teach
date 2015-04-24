@@ -1,4 +1,4 @@
-{% extends 'content_management/content_management_dashboard_base.html' %}
+{% extends 'content_management/dashboard_base.html' %}
 {% block title %} {{ type|capfirst }} : dashboard {% endblock %}
 {% block body %}     
 
@@ -29,8 +29,8 @@
   <li role="presentation" class="active"><a href="/dashboard/posts/trash/">Trash</a></li>
 {% endifequal %}  
 
-<a class="btn btn-default" href="/create/post/">Create New Post</a>
-<a class="btn btn-default" href="/reorder/">Reorder Posts</a>
+<a class="btn btn-default" href="/dashboard/create/post/">Create New Post</a>
+<a class="btn btn-default" href="/dashboard/reorder/posts/">Reorder Posts</a>
 </ul>
          {% if warnings %}
         <div class="alert alert-dismissable alert-warning">
@@ -57,7 +57,7 @@
 						<tr>
 							<td><input type="checkbox" name=id{{ post.id }} value={{ post.id }} /></td>
 							<td>{{ post.post_name }}</td>
-							<td><a href="/edit/post/{{ post.id }}/">Edit</a></td>
+							<td><a href="/dashboard/edit/post/{{ post.id }}/">Edit</a></td>
 						<tr>
 						{% endfor %}
 					</table>

@@ -8,69 +8,55 @@ from django.http import Http404
 from django.db.models import F, Min, Max, Count, Q
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-import re, json
+import json
 from django.utils import timezone
 import pyrax, os
 from django.core import serializers
-from helper import *
+from content_management.helper import *
 import uuid
+from webapp.views import posts
 
-def search(request):
-	term=request.GET['query']
-	categories = Category.objects.filter(name__icontains=term)
-	posts = Post.objects.filter(post_name__icontains=term)
-
-	return render_to_response('content_management/content_management_search_results.html',{'result_posts':posts, 'result_categories':categories},RequestContext(request))	
 
 def leafCategoriesHtml(request):
-	"""updates leaf categories select list. Main Category lt and rt values are send using ajax $.get is used - createpost and reorder page"""
+    """updates leaf categories select list. Main Category lt and rt values are send using ajax $.get is used - createpost and reorder page"""
 
-	if request.method=="GET":
-		leaf_categories = leafCategories(request.GET['category_lt'], request.GET['category_rt'])
-		if leaf_categories:
-			options=''
-			for category in leaf_categories:
-				options+="<option value=" + str(category.id) + " >" + category.url.split("/",2)[2] + "</option>"
+    if request.method=="GET":
+        leaf_categories = leafCategories(request.GET['category_lt'], request.GET['category_rt'])
+        if leaf_categories:
+            options=''
+            for category in leaf_categories:
+                options+="<option value=" + str(category.id) + " >" + category.url.split("/",2)[2] + "</option>"
 
-			return HttpResponse(options)
-		else:
-			return HttpResponse("") 
-	else:
-		return HttpResponse("") 
+            return HttpResponse(options)
+        else:
+            return HttpResponse("") 
+    else:
+        return HttpResponse("") 
 
-	
+    
 
 def leafCategories(category_lt, category_rt):
-	leaf_categories =  Category.objects.filter(lt__gt=category_lt, rt__lt=category_rt, rt=F('lt')+1).order_by('lt')
-	return leaf_categories
-	
-def subCategoriesHtml(request):
-	"""updates level 2 categories on home page."""
+    leaf_categories =  Category.objects.filter(lt__gt=category_lt, rt__lt=category_rt, rt=F('lt')+1).order_by('lt')
+    return leaf_categories
 
-	if request.method=="GET":
-		subCategories = subcategories(request.GET["category_id"])
-		if subCategories:
-			options='<option value=\"#\">Select Sub-Topic</option>'
-			for category in subCategories:
-				options+="<option value=\"/subjects" + str(category.url) + "\">" + category.name + "</option>"
-			return HttpResponse(options)
-		else:
-			return HttpResponse("")
-	else:
-		return HttpResponse("")
 
 def postHtml(request):
-	"""creates list of posts in a category for ordering on reorder page """
+    """creates list of posts in a category for ordering on reorder page """
 
-	if request.method == "GET":
-		distinct_posts = posts(request.GET["category_id"]).distinct('sequence') 	
-		listItems=''
-		for post in distinct_posts:
-			listItems+= '<li class=\"ui-state-default\" id=\"id_' + post.post_name + '\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>' + post.post_name + '</li>'
-		return HttpResponse(listItems)
-	
-	
+    if request.method == "GET":
+        distinct_posts = posts(request.GET["category_id"]).distinct('sequence')
+        listItems=''
+        for post in distinct_posts:
+            listItems+= '<li class=\"ui-state-default\" id=\"id_' + post.post_name + '\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>' + post.post_name + '</li>'
+        return HttpResponse(listItems)
+
+
+
 def reorder(request):	
+	'''
+	This function is to reorder published posts. 
+	'''
+
 	if request.method == "POST":
 		print request.POST	
 		i=1
@@ -81,89 +67,9 @@ def reorder(request):
 			i=i+1
 		return HttpResponse("thank you")
 	if request.method == "GET":
-		return render_to_response('content_management/content_management_reorder_post.html', {}, RequestContext(request))
+		return render_to_response('content_management/reorder_post.html', {}, RequestContext(request))
 
-def nextCategory(category_id):
-	'''
-	Returns the next category. Used as a pager in render_post.
-	'''
 
-	try:
-		category = Category.objects.get(id=category_id)
-		next_categories = Category.objects.filter(lt__gt=category.lt, rt=F('lt')+1, published__isnull=False).order_by('lt')	
-		if next_categories:
-			return next_categories[0]
-			
-	except Category.DoesNotExist:
-		return None	
-	
-	
-def retrieve_post ( request, url, author_username=None):#store author username in post url which will make diff in url of categories and posts
-	context = RequestContext(request)
-	url = slugify_url(url)
-	if author_username is not None:
-		#requested_post = Post.objects.select_related('category').only('category__id').get( url = url, author__username = author_username, published__isnull = False )
-		requested_post = get_object_or_404( Post, url = url, author__username = author_username, published__isnull = False, draft = None, trash = None)
-		sibbling_posts = posts(requested_post.category_id)		 
-		next_category = nextCategory(requested_post.category_id)
-		return render_to_response('content_management/content_management_render_post.html', {'requested_post':requested_post, 'sibbling_posts':sibbling_posts , 'next_category':next_category}, context)
-
-	else:
-		requested_posts_count = Post.objects.filter( url = url, published__isnull = False, trash = None, draft = None).count()
-		if requested_posts_count == 0:
-			raise Http404
-		elif requested_posts_count == 1:
-			requested_post = Post.objects.select_related('author__username').only('author__username').get( url = url, published__isnull = False )
-			return HttpResponseRedirect('/subjects' + url + 'author/' +  requested_post.author.username )	
-		elif requested_posts_count >1:
-			requested_posts = Post.objects.filter( url = url, published__isnull = False)
-			return render_to_response('content_management/content_management_render_post.html', {'requested_posts':requested_posts }, context)
-		else:
-			raise Http404
-
-def retrieve_category( request, url ):
-	context = RequestContext(request)
-	url = slugify_url(url)
-	try:
-		requested_category = Category.objects.get( url = url, published__isnull = False)
-		result_type = "category"
-		if (requested_category.rt == requested_category.lt + 1):
-			results=posts(requested_category.id)
-			if results.exists():			
-				first_post = results[0]
-				return HttpResponseRedirect('/subjects' + first_post.url + 'author/' +  first_post.author.username )	
-		else:
-			results = subtree( requested_category.lt, requested_category.rt, requested_category.level )
-
-		return render_to_response('content_management/content_management_render_category.html', {'requested_category':requested_category, 'results':results, 'result_type':result_type}, context)
-	except Category.DoesNotExist:
-	# try if url matches any post
-		return retrieve_post( request, url )		
-
-def subcategories( parent_category_id ):
-	'''
-	This functions returns the list of subcategories.
-	Parent category's 'id' is passed as parameter to this function.
-	'''
-	
-	sub_categories = Category.objects.filter( parent__id = parent_category_id ).order_by( 'lt' )	
-	return sub_categories
-
-def subtree( parent_category_lt, parent_category_rt, parent_category_level):
-	'''
-	This function retuns subtree upto 2 levels
-	'''
-	
-	sub_tree = Category.objects.filter( lt__gt = parent_category_lt, rt__lt = parent_category_rt, published__isnull=False, level__lte=parent_category_level+2 ).order_by('lt')
-	return sub_tree
-
-def posts( category_id ):
-	'''
-	This function returns list of all the posts in the category whose 'id' is equal to 'category_id'.
-	'''
-
-	posts = Post.objects.filter( category__id = category_id, published__isnull = False, draft = None, trash = None).order_by( 'sequence' )
-	return posts
 
 def check_key(key):
 	return re.match(r'^id{1,2}',key)
@@ -260,10 +166,10 @@ def edit_post(request, post_id):
 							return HttpResponseRedirect("/subjects"+ edited_post.url + "author/" + edited_post.author.username )
 				else:
 					print form.errors	
-					return render_to_response('content_management/content_management_edit_post.html',{'form': form, 'post_id': post.id}, context)
+					return render_to_response('content_management/edit_post.html',{'form': form, 'post_id': post.id}, context)
 			else:
 				form = PostForm(instance = post)
-				return render_to_response('content_management/content_management_edit_post.html',{'form': form, 'post_id': post.id}, context)
+				return render_to_response('content_management/edit_post.html',{'form': form, 'post_id': post.id}, context)
 		else:
 			raise PermissionDenied
 	except Post.DoesNotExist:
@@ -398,7 +304,7 @@ def create_post(request):
 			print form.errors
 	else:
 		form=PostForm(initial={'post_name':'', 'keywords':'', 'transcript':'', 'content':''})
-       	return render_to_response('content_management/content_management_create_post.html', {'form':form}, context)
+       	return render_to_response('content_management/create_post.html', {'form':form}, context)
 
 def generateUploadUrl(request):
 	if request.is_ajax():
@@ -448,7 +354,7 @@ def create_category(request):
 
 		else:
 			form = CategoryForm(initial={'name':'', 'description':'', 'url':''})
-		return render_to_response('content_management/content_management_create_category.html', {'form':form}, context)
+		return render_to_response('content_management/create_category.html', {'form':form}, context)
 	
 	else:
 		raise PermissionDenied
@@ -490,7 +396,7 @@ def dashboard_categories(request, warnings=None):
 			warnings = delete_category(request)
 			
 	categories = Category.objects.filter(lt__gt=1, published__isnull=False).order_by('lt')
-	return render_to_response('content_management/content_management_dashboard_categories.html', {'categories':categories,'warnings':warnings}, RequestContext(request))
+	return render_to_response('content_management/dashboard_categories.html', {'categories':categories,'warnings':warnings}, RequestContext(request))
 
 @login_required()
 def dashboard_posts(request, post_type, warnings=None):
@@ -525,6 +431,6 @@ def dashboard_posts(request, post_type, warnings=None):
 	else:
 		raise Http404
 	
-	return render_to_response( 'content_management/content_management_dashboard_posts.html', {'posts':posts, 'warnings':warnings, 'type':post_type}, RequestContext(request) )
+	return render_to_response( 'content_management/dashboard_posts.html', {'posts':posts, 'warnings':warnings, 'type':post_type}, RequestContext(request) )
 
 

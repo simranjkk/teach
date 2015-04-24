@@ -1,4 +1,4 @@
-{% extends "content_management/content_management_base.html" %}
+{% extends "webapp/base.html" %}
 {% block body %}
 	<div class="row">
 		<div class="col-md-12 text-center ">
@@ -7,7 +7,7 @@
 	</div>
 	
 	<div class="row">
-		<form id="category_form" method="post" action="/create/category/">
+		<form id="category_form" method="post" action="/dashboard/create/category/">
 			{% csrf_token %}
 				<div class="col-md-2 text-center">
 					<h3>Select Parent Category</h3>

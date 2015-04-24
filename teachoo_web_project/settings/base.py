@@ -4,8 +4,8 @@ TEMP_PATH = os.path.join(SETTINGS_DIR, os.pardir)
 PROJECT_PATH = os.path.join(TEMP_PATH, os.pardir)
 PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 CONTENT_MANAGEMENT_PATH = os.path.join(PROJECT_PATH, 'content_management')
+WEBAPP_PATH = os.path.join(PROJECT_PATH, 'webapp')
 TEMPLATE_PATH = os.path.join(PROJECT_PATH, 'templates')
-STATIC_CONTENT_MANAGEMENT_PATH = os.path.join(CONTENT_MANAGEMENT_PATH, 'static')
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -54,8 +54,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
-    STATIC_CONTENT_MANAGEMENT_PATH,
     os.path.join(PROJECT_PATH, 'static'),
+	os.path.join(CONTENT_MANAGEMENT_PATH, 'static'),
+	os.path.join(WEBAPP_PATH, 'static'),
     # Don't forget to use absolute paths, not relative paths.
 )
 
@@ -77,6 +78,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+	'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -97,6 +99,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     TEMPLATE_PATH,
     os.path.join(CONTENT_MANAGEMENT_PATH, 'templates'),
+	os.path.join(WEBAPP_PATH, 'templates'),
 )
 
 
@@ -112,6 +115,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'content_management',
+	'webapp',
     #'django.contrib.comments',
 
 	# for allauth
@@ -134,7 +138,7 @@ TEMPLATE_CONTEXT_PROCESSORS = ( #Required by allauth template tags
                 # For admin
                 "django.contrib.auth.context_processors.auth",
 				# for content_management
-                "content_management.context_processors.navbar_subjects",
+                "webapp.context_processors.navbar_subjects",
                 )
 
 
@@ -175,3 +179,5 @@ EMAIL_HOST_USER=os.environ["SENDGRID_USERNAME"]
 EMAIL_HOST_PASSWORD=os.environ["SENDGRID_PASSWORD"]
 EMAIL_PORT=int(os.environ["EMAIL_PORT"])
 EMAIL_USE_TLS=os.environ["EMAIL_USE_TLS"]
+
+

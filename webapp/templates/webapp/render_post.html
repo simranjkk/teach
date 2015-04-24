@@ -1,5 +1,4 @@
-{% extends "content_management/content_management_base.html" %}
-
+{% extends 'webapp/base.html' %}
 {% load static %}
 
 {% block head_title %} {% if requested_post %} {{ requested_post.post_name|capfirst }} {% else %} {{ requested_posts.0.post_name|capfirst }} {% endif%} {% endblock %}

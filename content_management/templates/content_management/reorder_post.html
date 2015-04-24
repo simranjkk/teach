@@ -1,4 +1,4 @@
-{% extends "content_management/content_management_base.html" %}
+{% extends "webapp/base.html" %}
 {% load static %}
 {% block stylesheets %}
   <style>
@@ -34,7 +34,7 @@
 	<!--	<h3 ><u><i><strong>{{ posts.0.category.url }}</strong></i></u></h3>-->
 	<ul id="sortable">
 	</ul>
-<form id="sequence" action="/reorder/" method="POST">
+<form id="sequence" action="/dashboard/reorder/posts/" method="POST">
 	{% csrf_token %}
 	<input type="hidden" id="category_id" name="category_id" value="{{ posts.0.category.id }}" />
 	<input type="hidden" id="sequence_hash" name="sequence_hash" value="" />
@@ -50,9 +50,9 @@
 
 
 		
-$("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){data="<option value=0>Select Sub-Category</option>" + data;$("#leaf_categories").html(data); $("#leaf_categories").prop("disabled",false);console.log(data);});})
+$("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/dashboard/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){data="<option value=0>Select Sub-Category</option>" + data;$("#leaf_categories").html(data); $("#leaf_categories").prop("disabled",false);console.log(data);});})
 
-$("#leaf_categories").change(function(){var selected=$("#leaf_categories :selected");$.get('/postlist/',{"category_id":selected.val()} , function(data){$("#sortable").html(data);$("#category_id").val(selected.val());console.log(data);});})
+$("#leaf_categories").change(function(){var selected=$("#leaf_categories :selected");$.get('/dashboard/postlist/',{"category_id":selected.val()} , function(data){$("#sortable").html(data);$("#category_id").val(selected.val());console.log(data);});})
   $(function() {
     $( "#sortable" ).sortable({axis:"y", revert:true, stop: function( event, ui ){}});
     $( "#sortable" ).disableSelection();

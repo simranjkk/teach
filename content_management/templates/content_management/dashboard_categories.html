@@ -1,4 +1,4 @@
-{% extends 'content_management/content_management_dashboard_base.html' %}
+{% extends 'content_management/dashboard_base.html' %}
 {% block title %} Categories : Dashboard {% endblock %}
 {% block body %}           
 <div class="container">
@@ -35,7 +35,7 @@
 						<p>{{ category.url }}</p>
 					</div>	
 					<div class="col-sm-4 col-xs-2">
-						<a href="/edit/category/{{category.id }}/"> Edit</a> 
+						<a href="/dashboard/edit/category/{{category.id }}/"> Edit</a> 
 					</div>
 				</div>
 			{% endfor %}

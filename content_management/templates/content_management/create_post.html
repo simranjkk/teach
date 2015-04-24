@@ -1,4 +1,4 @@
-{% extends "content_management/content_management_base.html" %}
+{% extends "webapp/base.html" %}
 {% load static %}
 {% block stylesheets %}
 	<link rel="stylesheet" href="{% static 'html/css/custom.css' %}">
@@ -8,18 +8,35 @@
 
 	<div class="row">
 		<div class="col-md-12 text-center">
-			<h1><u> Edit Post</u></h1><hr>
+			<h1><u> Add New Post</u></h1><hr>
 		</div>
 	</div>
 
 	<div class="row">
-<form id="post_form" method="post" action="/edit/post/{{ post_id }}/">
+<form id="post_form" method="post" action="/dashboard/create/post/">
 	{% csrf_token %}
 	{{ form.non_field_errors }}
 	<div class="col-md-2 text-center">
 		<h3>Select Category</h3>
 
-	{{ form.category }}
+
+
+<select id="main_categories" style="margin-top:10px;"  size="1" class="form-control"> 
+		<option value="0">Select Category</option>
+		{% if categories %}
+		{% for category in categories %}
+		{% if category.level == 1 %}
+		<option value="" data-lt={{ category.lt }} data-rt={{ category.rt }} >{{ category.name }}</option>
+		{% endif %}
+		{% endfor %}
+		{% endif %}
+	</select>
+
+
+
+<select id="id_category" name="category" style="margin-top:10px;" size="1" class="form-control" disabled>
+		<option>Select Sub-Category </option>
+	</select>
 
 		{% if form.category.errors %}
 			{% for error in form.category.errors %}
@@ -73,11 +90,14 @@
 <div class="col-md-2 text-center" style="padding-top:10px;">
 	<div><input type="submit" value="Publish" name="publish" class="btn btn-md btn-success"/></div><br>	
 	<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-md btn-primary"/></div><br>
+	{% if request.user.is_staff %}
+	<div><input type="submit" value="Publish & Create Another" name="publishandcreate" class="btn btn-md btn-success"/></div><br>	
+	{% endif %}
 </div>
 	</div>		
 
 <div class="container ">
-			<h3 class="text-center">Edit your post</h3>
+			<h3 class="text-center">Create your post</h3>
 			<textarea name="content" id={{ form.content.id_for_label }}>{{ form.content.value }}</textarea>
 			{% if form.content.errors %}
            		{% for error in form.content.errors %}
@@ -119,16 +139,18 @@
 {% endblock %}
 {% block scripts %}
 <script type="text/javascript" src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
-<script type="text/javascript" src="{% static 'html/js/rackspace-upload.js' %}"></script>
+<script type="text/javascript" src="{% static 'html/js/rackspace-upload.js'%}"></script>
 <script type="text/javascript"> 
 
 $( document ).ready(function() {
-	
+
 //To toggle width of post images from 75% to 100% onclick
     $(".post-images").click(function(){
         $(this).toggleClass('enlarged');
     });
 
+//Ajax to load leaf categories on selecting main category
+$("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/dashboard/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){$("#id_category").html(data); $('#id_category').prop("disabled", false);console.log(data);});})
 
 // Initialize post editor
 initEditor();
@@ -167,7 +189,7 @@ function initEditor(){
                             }   
                         }   
                     }); 
-             }
+                }
             });
             // Register DownloadFile button
             ed.addButton('DownloadFile', {
@@ -187,8 +209,9 @@ function initEditor(){
         }
     });
 }
+                                                                                                          
 
-
+                                                                    
 </script>
 
 
