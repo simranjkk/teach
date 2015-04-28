@@ -144,6 +144,10 @@
 
 $( document ).ready(function() {
 
+//Remove width and height properties from vimio videos
+	$( "#post_form" ).on( 'submit', function(){
+		$("iframe #id_content_ifr").contents().find("[data-mce-p-class=vimio-video]").removeAttr("height width");
+	} );
 //To toggle width of post images from 75% to 100% onclick
     $(".post-images").click(function(){
         $(this).toggleClass('enlarged');
@@ -158,14 +162,41 @@ initEditor();
 
 //Custom editor settings
 function initEditor(){
+
+// Plugin to add vimio video
+tinymce.PluginManager.add('video', function(editor, url) {
+    // Add a button that opens a window
+   editor.addButton('video', {
+       text: 'Video',
+       icon: false,
+       onclick: function() {
+           // Open window
+           editor.windowManager.open({
+               title: 'Insert Video',
+               body: [
+                   {type: 'textbox', name: 'link', label: 'Video Url'}
+               ],
+               onsubmit: function(e) {
+                   // Insert content when the window form is submitted
+					editor.execCommand('mceInsertContent', false,'<iframe src=\"' + e.data.link  + '\" class=\"vimio-video\" webkitallowfullscreen mozallowfullscreen allowfullscreen frameborder=\"0\"></iframe>', {skip_undo : 1});
+               }
+           });
+       }
+   });
+
+});
+
+
+
+
     tinymce.init({
         selector: "textarea#id_content",
         plugins: [
-            "advlist autolink lists link image charmap print preview anchor",
+            "video advlist autolink lists link image charmap print preview anchor",
             "searchreplace visualblocks code fullscreen",
             "insertdatetime media table contextmenu paste"
         ],
-        toolbar: "Image DownloadFile insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+        toolbar: "video Image DownloadFile insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
 
         content_css:["{% static 'html/css/custom.css' %}","{% static 'html/bootstrap/css/bootstrap.min.css' %}","{% static 'html/font-awesome/css/font-awesome.min.css' %}"],
 
@@ -177,6 +208,7 @@ function initEditor(){
                 text:'Image',
                 //image : '../jscripts/tiny_mce/plugins/example/img/example.gif',
                 onclick : function() {
+
                     $("#post-image-selector").click();
                     $('#post-image-selector').on('change',function(){
 
@@ -190,6 +222,7 @@ function initEditor(){
                         }   
                     }); 
                 }
+
             });
             // Register DownloadFile button
             ed.addButton('DownloadFile', {

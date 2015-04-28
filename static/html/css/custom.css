@@ -1,6 +1,8 @@
+/* Responsive Post Images */
 .post-images{
 	width:100%;
 }
+
 @media(min-width:992px){
 .post-images{
 	width:75%;
@@ -11,6 +13,19 @@
 .enlarged{
 	width:100%;
 }
+}
+
+/* Responsive Videos */
+.vimio-video{
+    width:100%;
+    height:350px;
+}
+
+@media (min-width: 768px) {
+    .vimio-video{
+        width:500px;
+        height:500px;
+    }   
 }
 
 
