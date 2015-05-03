@@ -144,9 +144,9 @@
 
 $( document ).ready(function() {
 
-//Remove width and height properties from vimio videos
+//Remove width and height properties from vimeo videos
 	$( "#post_form" ).on( 'submit', function(){
-		$("iframe #id_content_ifr").contents().find("[data-mce-p-class=vimio-video]").removeAttr("height width");
+		$("iframe #id_content_ifr").contents().find("[data-mce-p-class=vimeo-video]").removeAttr("height width");
 	} );
 //To toggle width of post images from 75% to 100% onclick
     $(".post-images").click(function(){
@@ -163,11 +163,11 @@ initEditor();
 //Custom editor settings
 function initEditor(){
 
-// Plugin to add vimio video
+// Plugin to add vimeo video
 tinymce.PluginManager.add('video', function(editor, url) {
     // Add a button that opens a window
    editor.addButton('video', {
-       text: 'Video',
+       text: 'Vimeo Video',
        icon: false,
        onclick: function() {
            // Open window
@@ -177,9 +177,23 @@ tinymce.PluginManager.add('video', function(editor, url) {
                    {type: 'textbox', name: 'link', label: 'Video Url'}
                ],
                onsubmit: function(e) {
-                   // Insert content when the window form is submitted
-					editor.execCommand('mceInsertContent', false,'<iframe src=\"' + e.data.link  + '\" class=\"vimio-video\" webkitallowfullscreen mozallowfullscreen allowfullscreen frameborder=\"0\"></iframe>', {skip_undo : 1});
-               }
+                   // Insert content when the form is submitted
+
+					var IframeUrl='';
+					if( e.data.link.search( "player.vimeo.com" ) != -1 ){
+						IframeUrl = e.data.link;
+
+            		} else if( e.data.link.search( "vimeo.com" ) != -1 ){
+						IframeUrl = e.data.link.replace( "vimeo.com", "player.vimeo.com/video" );
+						
+					} else{
+						alert("Video Url is not correct. Please make sure that url contains vimeo.com");
+					} 
+					
+					if(IframeUrl){
+						editor.execCommand('mceInsertContent', false,'<iframe src=\"' + IframeUrl  + '\" class=\"vimeo-video\" webkitallowfullscreen mozallowfullscreen allowfullscreen frameborder=\"0\"></iframe>', {skip_undo : 1});
+					}
+				}
            });
        }
    });
