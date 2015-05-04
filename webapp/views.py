@@ -1,6 +1,8 @@
+from django.core.mail import send_mass_mail
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from content_management.models import Post, Category 
+from webapp.forms import ContactForm
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.db.models import F, Min, Max, Count, Q
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -8,6 +10,22 @@ import re, json
 from django.core import serializers
 from content_management.helper import slugify_url 
 import uuid
+
+def contact( request ):
+	if request.method == "POST":
+		form = ContactForm( request.POST )
+		if form.is_valid():
+			enquiry = ( "teachoo.com: Enquiry from " + form.cleaned_data['sender_name'], form.cleaned_data['message'], form.cleaned_data['sender_email'], ['teachooindia@gmail.com', 'davneet4u@gmail.com'] )
+
+			sender_response = ( "teachoo.com: Automated response", "Thank you for your interest. We will get back to you soon", "noreply@teachoo.com", [form.cleaned_data['sender_email']] )
+
+			status = send_mass_mail( ( enquiry, sender_response ), fail_silently=False )
+			return render_to_response( 'webapp/contact.html', {'status': status}, RequestContext( request ) )
+
+
+	else:
+		form = ContactForm()
+		return render_to_response( 'webapp/contact.html', {'form':form}, RequestContext( request ) )
 
 def search(request):
 	term=request.GET['query']

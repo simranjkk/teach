@@ -1,0 +1,16 @@
+{% extends 'webapp/base.html' %}
+{% load static %}
+{% block body %}
+
+{% if status %}
+	<h1>{{ status }} </h1>
+{% endif %}
+{% if form %}
+<form action="/contact/" method="POST">
+{% csrf_token %}
+	{{form.as_p}}	
+<input type=submit value="Submit" />
+</form>
+{% endif %}
+
+{% endblock body %}
