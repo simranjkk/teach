@@ -10,17 +10,27 @@ import re, json
 from django.core import serializers
 from content_management.helper import slugify_url 
 import uuid
+from django.contrib.auth.models import User, Group
 
 def contact( request ):
+	''' 
+	This view handles contact us form. It sends user query as email to all the users in ContactUs group.
+	It also sends an automated response to the person submitting the contact us form.
+	'''
+
 	if request.method == "POST":
 		form = ContactForm( request.POST )
 		if form.is_valid():
-			enquiry = ( "teachoo.com: Enquiry from " + form.cleaned_data['sender_name'], form.cleaned_data['message'], form.cleaned_data['sender_email'], ['teachooindia@gmail.com', 'davneet4u@gmail.com'] )
+			ContactUsEmailIds = User.objects.filter( groups__name='ContactUs' ).values_list( 'email', flat=True )
+			enquiry = ( "teachoo.com: Enquiry from " + form.cleaned_data['sender_name'], form.cleaned_data['message'], form.cleaned_data['sender_email'], ContactUsEmailIds ) # email query to all the users in ContactUs group
 
-			sender_response = ( "teachoo.com: Automated response", "Thank you for your interest. We will get back to you soon", "noreply@teachoo.com", [form.cleaned_data['sender_email']] )
+			sender_response = ( "teachoo.com: Automated response", "Thank you for your interest. We will get back to you soon.", "noreply@teachoo.com", [form.cleaned_data['sender_email']] ) # Automated response to sender
 
 			status = send_mass_mail( ( enquiry, sender_response ), fail_silently=False )
 			return render_to_response( 'webapp/contact.html', {'status': status}, RequestContext( request ) )
+		
+		else:
+			return render_to_response( 'webapp/contact.html', {'form':form}, RequestContext( request ) )
 
 
 	else:
@@ -28,9 +38,13 @@ def contact( request ):
 		return render_to_response( 'webapp/contact.html', {'form':form}, RequestContext( request ) )
 
 def search(request):
+	'''
+	Returns the categories and posts matching the search query.
+	'''
+
 	term=request.GET['query']
-	categories = Category.objects.filter(name__icontains=term)
-	posts = Post.objects.filter(post_name__icontains=term)
+	categories = Category.objects.filter( name__icontains=term, published__isnull=False )
+	posts = Post.objects.filter( post_name__icontains=term, published__isnull=False )
 
 	return render_to_response('webapp/search_results.html',{'result_posts':posts, 'result_categories':categories},RequestContext(request))	
 
