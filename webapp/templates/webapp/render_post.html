@@ -60,6 +60,18 @@ font-size:26px;
 
 {% endblock stylesheets %}
 
+
+{% block metacontent %}
+
+{% if requested_post %}
+	<meta name="description" content="{{ requested_post.title }}">
+	<meta name="author" content="{{ requested_post.author.username }}">
+{% else %}
+	<meta name="description" content="{{ requested_posts.0.title }}"> 
+{% endif %}
+
+{% endblock metacontent %}
+
 {% block body %}
 
 <div class="container" >

@@ -9,11 +9,6 @@ border:none;
 {% endblock stylesheets %}
 {% block body %}
 
-{% if posts %}
-{% for post in posts %}
-<li><a href="/subjects{{post.url}}author/{{post.author.username}}">{{post.post_name}}:{{post.title}}</a>
-{% endfor %}
-{% endif %}
 <div class="container" style="text-align:center; padding-top:150px;" >
 	<div class="row">
 		<h1 style="margin-top:10px; color:#52B4AF;">I want to study ...</h1>
@@ -38,49 +33,53 @@ border:none;
 
 	</div>
 	<hr>
-<div class="col-md-4 col-md-offset-2">
-	<div class="row">
-		<div class="col-xs-6 ">
-			<a href="http://www.teachoo.com/subjects/cbse-maths/" class="thumbnail">
-				<img src='{% static "html/img/cbse_maths_circle.png" %}' >
-			</a>
-		</div>
+	<div class="col-md-4 col-md-offset-2">
+		<div class="row">
+			<div class="col-xs-6 ">
+				<a href="http://www.teachoo.com/subjects/cbse-maths/" class="thumbnail">
+					<img src='{% static "html/img/cbse_maths_circle.png" %}' >
+				</a>
+			</div>
 		
-		<div class="col-xs-6">
-			<a href="http://www.teachoo.com/subjects/income-tax/" class="thumbnail">
-				<img src='{%static "html/img/income_tax_circle.png" %}' >
-			</a>
+			<div class="col-xs-6">
+				<a href="http://www.teachoo.com/subjects/income-tax/" class="thumbnail">
+					<img src='{%static "html/img/income_tax_circle.png" %}' >
+				</a>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="row">
+			<div class="col-xs-6">
+				<a href="http://www.teachoo.com/subjects/practical-accounting/" class="thumbnail">
+					<img src='{%static "html/img/practical_accounting_circle.png" %}' >
+				</a>
+			</div>
+			<div class="col-xs-6">
+				<a href="http://www.teachoo.com/subjects/practical-taxation/" class="thumbnail">
+					<img src='{%static "html/img/practical_taxation_circle.png" %}' >
+				</a>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-offset-4 col-md-4">
+		<div class="row">
+			<div class="col-xs-6">
+				<a href="http://www.teachoo.com/subjects/excel/" class="thumbnail">
+					<img src='{%static "html/img/excel_circle.png" %}'>
+				</a>
+			</div>
+			<div class="col-xs-6">
+				<a href="#" class="thumbnail">
+					<img src='{%static "html/img/tally_circle.png" %}' >
+				</a>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="col-md-4">
-	<div class="row">
-		<div class="col-xs-6">
-			<a href="http://www.teachoo.com/subjects/practical-accounting/" class="thumbnail">
-				<img src='{%static "html/img/practical_accounting_circle.png" %}' >
-			</a>
-		</div>
-		<div class="col-xs-6">
-			<a href="http://www.teachoo.com/subjects/practical-taxation/" class="thumbnail">
-				<img src='{%static "html/img/practical_taxation_circle.png" %}' >
-			</a>
-		</div>
-	</div>
-</div>
-<div class="col-md-offset-4 col-md-4">
-	<div class="row">
-		<div class="col-xs-6">
-			<a href="http://www.teachoo.com/subjects/excel/" class="thumbnail">
-				<img src='{%static "html/img/excel_circle.png" %}'>
-			</a>
-		</div>
-		<div class="col-xs-6">
-			<a href="#" class="thumbnail">
-				<img src='{%static "html/img/tally_circle.png" %}' >
-			</a>
-		</div>
-	</div>
-</div>
+{% endblock body %}
+
+{% block scripts %}
 <script> 
 $("#main_categories").change(function(){$.get('/updatesubcategories/',{"category_id":this.value},function(data){var subcategories=$("#subcategories"); subcategories.html(data); subcategories.prop("disabled", false);});});
 
@@ -90,5 +89,4 @@ $("#main_categories,#subcategories").change(function(){
 		window.location.href=nextLink;
 });
 </script>
-{% endblock %}
-
+{% endblock scripts %}

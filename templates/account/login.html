@@ -8,26 +8,36 @@
 
 {% block content %}
    <div> <a href="/accounts/google/login/" ><img src='{%static "account/google.png"%}' style="margin:30px auto 2px auto; display:block;"/></a></div>
-    <a href="/accounts/facebook/login/"><div class="fb"></div></a>
+    <a href="/accounts/facebook/login/"><img src='{% static "account/fb.png" %}' /></a>
     {% include "socialaccount/snippets/login_extra.html" %}
     <div class="inset">
         <div class="header">Or sign in directly</div>
-        <form class="login" method="POST" action="{% url 'account_login' %}">
-          {% csrf_token %}
-            {{ form.non_field_errors }}
-            <input id="id_login" class="login-input" maxlength="30" name="login" placeholder="Username" type="text" />{{ form.login.errors }}<br>
-            <input id="id_password"  class="login-input" name="password" placeholder="Password" type="password" />{{ form.password.errors }}<br>
-            <div class="remember-forgot-section">
-                <input id="id_remember" name="remember" type="checkbox" />
-                <label for="id_remember">Remember Me</label>
-                <a class="forgot" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-            </div>
-          {% if redirect_field_value %}
-          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-          {% endif %}
+<form class="login" method="POST" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="input-group">
+        <span class="input-group-addon" id="username-addon"><i class="fa fa-user"></i></span>
+        <input id="id_login" maxlength="30" name="login" placeholder="Username or email" type="text" class="form-control login-input" aria-descibedby="username-addon" />
+    </div>
+    {{ form.login.errors }}
+    <br>
+    <div class="input-group">
+        <span class="input-group-addon" id="password-addon"><i class="fa fa-lock"></i></span>
+        <input id="id_password" name="password" placeholder="Password" type="password" class="form-control login-input" aria-describedby="password-addon">
+    </div>
+    {{ form.password.errors }}
+    <br>
+    <div class="remember-forgot-section">
+        <input id="id_remember" name="remember" type="checkbox" />
+        <label for="id_remember">Remember Me</label>
+        <a class="forgot button" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+    </div>
+    {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    <button class="btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+</form> 
 
-          <button class="btn" type="submit">{% trans "Sign In" %}</button>
-        </form>
 
         <div class="footnote">
             Don't have an account? Login with Facebook above or <a href="{% url 'account_signup' %}">Sign Up</a>
