@@ -167,7 +167,7 @@ function initEditor(){
 tinymce.PluginManager.add('video', function(editor, url) {
     // Add a button that opens a window
    editor.addButton('video', {
-       text: 'Vimeo Video',
+       text: 'Video',
        icon: false,
        onclick: function() {
            // Open window
@@ -180,19 +180,29 @@ tinymce.PluginManager.add('video', function(editor, url) {
                    // Insert content when the form is submitted
 
 					var IframeUrl='';
-					if( e.data.link.search( "player.vimeo.com" ) != -1 ){
-						IframeUrl = e.data.link;
+					if( e.data.link.search( "youtube.com" ) != -1 ){
+						if( e.data.link.search( "watch" ) != -1 ){
+							IframeUrl = e.data.link.replace( "watch?v=", "embed/" );
+						} else{
+							IframeUrl = e.data.link;
+						}
+						if(IframeUrl){
+							editor.execCommand('mceInsertContent', false,'<div class=\"embed-container\"><iframe src=\"' + IframeUrl  + '\"  webkitallowfullscreen mozallowfullscreen allowfullscreen frameborder=\"0\"></iframe></div>', {skip_undo : 1});
+						}
+					} else if( e.data.link.replace( "vimeo.com" ) != -1 ){
 
-            		} else if( e.data.link.search( "vimeo.com" ) != -1 ){
-						IframeUrl = e.data.link.replace( "vimeo.com", "player.vimeo.com/video" );
-						
+						if( e.data.link.search( "player.vimeo.com" ) != -1 ){
+							IframeUrl = e.data.link;
+
+            			} else if( e.data.link.search( "vimeo.com" ) != -1 ){
+							IframeUrl = e.data.link.replace( "vimeo.com", "player.vimeo.com/video" );
+						}
+						if(IframeUrl){
+							editor.execCommand('mceInsertContent', false,'<iframe src=\"' + IframeUrl  + '\" class=\"vimeo-video\" webkitallowfullscreen mozallowfullscreen allowfullscreen frameborder=\"0\"></iframe>', {skip_undo : 1});
+						}
 					} else{
-						alert("Video Url is not correct. Please make sure that url contains vimeo.com");
+						alert("Video Url is not correct. Please make sure that url contains vimeo.com or youtube.com");
 					} 
-					
-					if(IframeUrl){
-						editor.execCommand('mceInsertContent', false,'<iframe src=\"' + IframeUrl  + '\" class=\"vimeo-video\" webkitallowfullscreen mozallowfullscreen allowfullscreen frameborder=\"0\"></iframe>', {skip_undo : 1});
-					}
 				}
            });
        }
