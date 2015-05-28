@@ -116,10 +116,11 @@ class CategoryForm(ModelForm):
 		category_name = cleaned_data.get("name")
 		category_parent = cleaned_data.get("parent")
 		# create and store url with the help of its parent category url
-		self.cleaned_data["url"] = create_url(category_parent.url, category_name)
-		category_url = cleaned_data.get("url")
-		if Category.objects.filter(parent = category_parent, url=category_url).exists():
-			error = u"Category with same name already exists."
-			self.errors["name"] = self.error_class([error])
-			del cleaned_data["name"]
+		if category_name and category_parent:
+			self.cleaned_data["url"] = create_url(category_parent.url, category_name)
+			category_url = cleaned_data.get("url")
+			if Category.objects.filter(parent = category_parent, url=category_url).exists():
+				error = u"Category with same name already exists."
+				self.errors["name"] = self.error_class([error])
+				del cleaned_data["name"]
 		return cleaned_data

@@ -302,8 +302,6 @@ def create_post(request):
 				else:
 					post.save()
 					return HttpResponseRedirect("/dashboard/posts/pending/")
-		else:
-			print form.errors
 	else:
 		form=PostForm(initial={'post_name':'', 'keywords':'', 'transcript':'', 'content':''})
        	return render_to_response('content_management/create_post.html', {'form':form}, context)
