@@ -14,7 +14,8 @@ import pyrax, os
 from django.core import serializers
 from content_management.helper import *
 import uuid
-from webapp.views import posts
+from webapp.views import posts, subcategories
+from django.forms.models import modelformset_factory
 
 
 def leafCategoriesHtml(request):
@@ -110,7 +111,7 @@ def delete_posts( request, delete_type ):
 	warnings = [str(count) + 'Posts deleted']
 	return warnings
 
-
+		
 @login_required()
 def edit_post(request, post_id):
 	'''
@@ -176,7 +177,7 @@ def edit_post(request, post_id):
 		raise Http404	
 
 	except Post.MultipleObjectsReturned:
-		return HttpResponse("Error")
+		raise Http404
 		#TODO: send notification to admin about the issue with reference of post id
 
 
@@ -246,6 +247,7 @@ def reject_post( request ):
 		 
 		warnings.append(str(count) + "posts rejected")	
 
+		
 @login_required()
 def create_post(request):
 	'''

@@ -2,6 +2,7 @@
 {% load static %}
 {% block stylesheets %}
 	<link rel="stylesheet" href="{% static 'html/css/custom.css' %}">
+
 {% endblock stylesheets %}
 
 {% block body %}	
@@ -62,30 +63,53 @@
 			{% endfor %}
 		{% endif %}
 	</div>
+<style>
+/* mce editor */
+.mce-edit-area{
+    height:300px;
+}
 
+.mce-tinymce{
+    width:100%;
+}
+</style>
 
 	<div class="row ">
-		<div class="col-md-6">
-			<label for="{{ form.transcript.id_for_label }}" class="col-md-2"> Transcript:</label>
+		<div class="col-md-offset-1 col-md-10">
+		<textarea name="content" id={{ form.content.id_for_label }}>{{ form.content.value }}</textarea>
+		{% if form.content.errors %}
+       		{% for error in form.content.errors %}
+           		<div class="alert alert-danger">{{error|escape }}</div>
+           	{% endfor %}
+       	{% endif %}
+		</div>
+	</div>
+
+
+		<div class="row">
+			<a class="btn btn-default top-buffer" data-toggle="collapse" href="#transcriptDiv" aria-expanded="false" aria-controls="transcriptDiv">Transcript</a>
+			<div id="transcriptDiv" class="collapse">
 			<textarea name="transcript" id="{{ form.transcript.id_for_label }}" class="form-control">{{ form.transcript.value }}</textarea>
 		 {% if form.transcript.errors %}
 			{% for error in form.transcript.errors %}
 				<div class="alert alert-danger">{{error|escape }}</div>
 			{% endfor %}
 		 {% endif %}
+			</div>
 		</div>
 
 
-		<div class="col-md-6">
-			<label for="{{ form.keywords.id_for_label }}" class="col-md-2"> Keywords:</label>
+		<div class="row top-buffer">
+			<a class="btn btn-default top-buffer" data-toggle="collapse" href="#keywordsDiv" aria-expanded="false" aria-controls="transcriptDiv">Keywords</a>
+			<div id="keywordsDiv" class="collapse">
 			<input type="text" name="keywords" maxlength="500" id="{{ form.keywords.id_for_label }}" class="form-control" value="{{ form.keywords.value }}"/>
 			{% if form.keywords.errors %}
 				{% for error in form.keywords.errors %}
 					<div class="alert alert-danger">{{error|escape }}</div>
 				{% endfor %}
 			{% endif %}
+			</div>
 		</div>
-	</div>
 </div>
 <div class="col-md-2 text-center" style="padding-top:10px;">
 	<div><input type="submit" value="Publish" name="publish" class="btn btn-md btn-success"/></div><br>	
@@ -97,13 +121,6 @@
 	</div>		
 
 <div class="container ">
-			<h3 class="text-center">Create your post</h3>
-			<textarea name="content" id={{ form.content.id_for_label }}>{{ form.content.value }}</textarea>
-			{% if form.content.errors %}
-           		{% for error in form.content.errors %}
-              		<div class="alert alert-danger">{{error|escape }}</div>
-            	{% endfor %}
-        	{% endif %}
 	<hr>
 </form>
 

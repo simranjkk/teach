@@ -22,6 +22,8 @@
           {% if redirect_field_value %}
           <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
           {% endif %}
+			<p>On signing up you are confirming that you have read and agree to <a href="/terms-conditions/" target="_blank">terms and conditions</a    >.</p>
+
           <button class="btn" type="submit">{% trans "Sign Up" %} &raquo;</button>
         </form>
         <div class="footnote">

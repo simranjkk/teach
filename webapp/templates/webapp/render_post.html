@@ -66,8 +66,11 @@ font-size:26px;
 {% if requested_post %}
 	<meta name="description" content="{{ requested_post.title }}">
 	<meta name="author" content="{{ requested_post.author.username }}">
+	<meta property="og:title" content="{{ requested_post.post_name }}">
+	<meta property="og:description" content="{{ requested_post.transcript|truncatechars:60 }}">
 {% else %}
 	<meta name="description" content="{{ requested_posts.0.title }}"> 
+	<meta property="og:title" content="{{ requested_post.0.post_name }}">
 {% endif %}
 
 {% endblock metacontent %}
