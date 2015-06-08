@@ -7,48 +7,19 @@
 
 {% block body %}	
 
-	<div class="row">
+<div class="row">
 		<div class="col-md-12 text-center">
 			<h1><u> Add New Post</u></h1><hr>
 		</div>
 	</div>
 
-	<div class="row">
+
+<div class="col-md-9" style="padding:20px 0;">
+
+	<div class="row form-group">
 <form id="post_form" method="post" action="/dashboard/create/post/">
 	{% csrf_token %}
 	{{ form.non_field_errors }}
-	<div class="col-md-2 text-center">
-		<h3>Select Category</h3>
-
-
-
-<select id="main_categories" style="margin-top:10px;"  size="1" class="form-control"> 
-		<option value="0">Select Category</option>
-		{% if categories %}
-		{% for category in categories %}
-		{% if category.level == 1 %}
-		<option value="" data-lt={{ category.lt }} data-rt={{ category.rt }} >{{ category.name }}</option>
-		{% endif %}
-		{% endfor %}
-		{% endif %}
-	</select>
-
-
-
-<select id="id_category" name="category" style="margin-top:10px;" size="1" class="form-control" disabled>
-		<option>Select Sub-Category </option>
-	</select>
-
-		{% if form.category.errors %}
-			{% for error in form.category.errors %}
-				<div class="alert alert-danger">{{error|escape }}</div>
-			{% endfor %}
-		{% endif %}
-	</div>	
-
-<div class="col-md-8" style="padding:20px 0;">
-
-	<div class="row form-group">
 		<div class="col-md-1 col-sm-1">
 			<label for="{{ form.post_name.id_for_label }}" class="col-md-2"> Post Name:</label>
 		</div>
@@ -86,8 +57,8 @@
 	</div>
 
 
-		<div class="row">
-			<a class="btn btn-default top-buffer" data-toggle="collapse" href="#transcriptDiv" aria-expanded="false" aria-controls="transcriptDiv">Transcript</a>
+		<div class="row col-md-offset-1">
+			<a class="btn btn-default top-buffer col-md-2-offset" data-toggle="collapse" href="#transcriptDiv" aria-expanded="false" aria-controls="transcriptDiv">Transcript</a>
 			<div id="transcriptDiv" class="collapse">
 			<textarea name="transcript" id="{{ form.transcript.id_for_label }}" class="form-control">{{ form.transcript.value }}</textarea>
 		 {% if form.transcript.errors %}
@@ -99,8 +70,8 @@
 		</div>
 
 
-		<div class="row top-buffer">
-			<a class="btn btn-default top-buffer" data-toggle="collapse" href="#keywordsDiv" aria-expanded="false" aria-controls="transcriptDiv">Keywords</a>
+		<div class="row top-buffer col-md-offset-1">
+			<a class="btn btn-default top-buffer col-md-2-offset" data-toggle="collapse" href="#keywordsDiv" aria-expanded="false" aria-controls="transcriptDiv">Keywords</a>
 			<div id="keywordsDiv" class="collapse">
 			<input type="text" name="keywords" maxlength="500" id="{{ form.keywords.id_for_label }}" class="form-control" value="{{ form.keywords.value }}"/>
 			{% if form.keywords.errors %}
@@ -111,17 +82,51 @@
 			</div>
 		</div>
 </div>
-<div class="col-md-2 text-center" style="padding-top:10px;">
-	<div><input type="submit" value="Publish" name="publish" class="btn btn-md btn-success"/></div><br>	
-	<div><input type="submit" value="Save as Draft" name="draft" class="btn btn-md btn-primary"/></div><br>
-	{% if request.user.is_staff %}
-	<div><input type="submit" value="Publish & Create Another" name="publishandcreate" class="btn btn-md btn-success"/></div><br>	
-	{% endif %}
-</div>
+
+	<div class="row">
+	<div class="col-md-2 text-center">
+		<h3>Select Category</h3>
+
+
+
+<select id="main_categories" style="margin-top:10px;"  size="1" class="form-control"> 
+		<option value="0">Select Category</option>
+		{% if categories %}
+		{% for category in categories %}
+		{% if category.level == 1 %}
+		<option value="" data-lt={{ category.lt }} data-rt={{ category.rt }} >{{ category.name }}</option>
+		{% endif %}
+		{% endfor %}
+		{% endif %}
+	</select>
+
+
+
+<select id="id_category" name="category" style="margin-top:10px;" size="1" class="form-control" disabled>
+		<option>Select Sub-Category </option>
+	</select>
+
+		{% if form.category.errors %}
+			{% for error in form.category.errors %}
+				<div class="alert alert-danger">{{error|escape }}</div>
+			{% endfor %}
+		{% endif %}
+	</div>	
+
 	</div>		
 
 <div class="container ">
-	<hr>
+
+<div  style="padding-top:10px;">
+	     <input type="submit" value="Publish" name="publish" class="btn btn-md btn-success"/>	
+	     <input type="submit" value="Save as Draft" name="draft" class="btn btn-md btn-primary"/>
+	{% if request.user.is_staff %}
+	     <input type="submit" value="Publish & Create Another" name="publishandcreate" class="btn btn-md btn-success"/>
+	{% endif %}
+</div>
+
+
+<hr>
 </form>
 
 
