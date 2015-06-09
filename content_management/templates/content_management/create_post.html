@@ -173,17 +173,19 @@ $( document ).ready(function() {
 //Ajax to load leaf categories on selecting main category
 $("#main_categories").change(function(){
 	var selected=$("#main_categories :selected");
-	$.get('/dashboard/updateleafcategory/',{
-		"category_lt":selected.data("lt"), 
-		"category_rt":selected.data("rt")
-		} , 	
-	function(data){
-		$("#id_category").html(data); 
-		$('#id_category').prop("disabled", false);
-		console.log(data);
-	// To select last used category after the main category has been selected automatically from cookies or manually
-		select_last_used_category();
-	});
+	if( selected.val() > 0 ){
+		$.get('/dashboard/updateleafcategory/',{
+			"category_lt":selected.data("lt"), 
+			"category_rt":selected.data("rt")
+			} , 	
+		function(data){
+			$("#id_category").html(data); 
+			$('#id_category').prop("disabled", false);
+			console.log(data);
+		// To select last used category after the main category has been selected automatically from cookies or manually
+			select_last_used_category();
+		});
+	}
 })
 // To select last used main category
 		select_last_used_main_category();

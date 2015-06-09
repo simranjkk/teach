@@ -20,7 +20,7 @@ function getCookie(cname) {
 
 function select_last_used_main_category(){
 	main_category = getCookie( "main_category" );
-	if( main_category ){
+	if( main_category > 0 ){
 		$("#main_categories > option").each(function(){// Check if their exists a select option with value equal to main_category
 			if( this.value == main_category )
 				$("#main_categories").val( main_category ).change();
