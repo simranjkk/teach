@@ -83,7 +83,7 @@
 		{% if categories %}
 		{% for category in categories %}
 		{% if category.level == 1 %}
-		<option value="" data-lt={{ category.lt }} data-rt={{ category.rt }} >{{ category.name }}</option>
+		<option value={{ category.id }} data-lt={{ category.lt }} data-rt={{ category.rt }} >{{ category.name }}</option>
 		{% endif %}
 		{% endfor %}
 		{% endif %}
@@ -155,10 +155,19 @@
 <script type="text/javascript"> 
 
 $( document ).ready(function() {
+// To select last used main category
+	setTimeout(function(){	
+		select_last_used_main_category();
+	},5000);
 
 //Remove width and height properties from vimeo videos
 	$( "#post_form" ).on( 'submit', function(){
 		$("iframe #id_content_ifr").contents().find("[data-mce-p-class=vimeo-video]").removeAttr("height width");
+		var main_category = $("#main_categories").val()
+		var category = $("#id_category").val()
+		setCookie( "main_category", main_category, 1 );
+		setCookie( "category", category, 1 );
+		
 	} );
 //To toggle width of post images from 75% to 100% onclick
     $(".post-images").click(function(){
@@ -166,7 +175,20 @@ $( document ).ready(function() {
     });
 
 //Ajax to load leaf categories on selecting main category
-$("#main_categories").change(function(){var selected=$("#main_categories :selected");$.get('/dashboard/updateleafcategory/',{"category_lt":selected.data("lt"), "category_rt":selected.data("rt")} , function(data){$("#id_category").html(data); $('#id_category').prop("disabled", false);console.log(data);});})
+$("#main_categories").change(function(){
+	var selected=$("#main_categories :selected");
+	$.get('/dashboard/updateleafcategory/',{
+		"category_lt":selected.data("lt"), 
+		"category_rt":selected.data("rt")
+		} , 	
+	function(data){
+		$("#id_category").html(data); 
+		$('#id_category').prop("disabled", false);
+		console.log(data);
+	// To select last used category after the main category has been selected automatically from cookies or manually
+		select_last_used_category();
+	});
+})
 
 // Initialize post editor
 initEditor();
