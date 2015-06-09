@@ -20,14 +20,22 @@ function getCookie(cname) {
 
 function select_last_used_main_category(){
 	main_category = getCookie( "main_category" );
-	if( main_category )
-		$("#main_categories").val( main_category ).change();
+	if( main_category ){
+		$("#main_categories > option").each(function(){// Check if their exists a select option with value equal to main_category
+			if( this.value == main_category )
+				$("#main_categories").val( main_category ).change();
+		});
+	}
 }
 
 function select_last_used_category(){
 	category = getCookie( "category" );
 	main_category = $("#main_categories").val();
-	main_category_cookie = getCookie( "main_category" )
-	if( category && main_category == main_category_cookie )
-		$("#id_category").val( category );
+	main_category_cookie = getCookie( "main_category" ) 
+	if( category && main_category == main_category_cookie ){ //If selected main_category is equal to main_category saved in cookies
+		$("#id_category > option").each(function(){// Check if their exists a select option with value equal to category
+			if(this.value == category )
+				$("#id_category").val( category );
+		});
+	}
 }
