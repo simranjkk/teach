@@ -155,10 +155,6 @@
 <script type="text/javascript"> 
 
 $( document ).ready(function() {
-// To select last used main category
-	setTimeout(function(){	
-		select_last_used_main_category();
-	},5000);
 
 //Remove width and height properties from vimeo videos
 	$( "#post_form" ).on( 'submit', function(){
@@ -189,6 +185,8 @@ $("#main_categories").change(function(){
 		select_last_used_category();
 	});
 })
+// To select last used main category
+		select_last_used_main_category();
 
 // Initialize post editor
 initEditor();
