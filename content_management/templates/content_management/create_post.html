@@ -34,17 +34,6 @@
 			{% endfor %}
 		{% endif %}
 	</div>
-<style>
-/* mce editor */
-.mce-edit-area{
-    height:300px;
-}
-
-.mce-tinymce{
-    width:100%;
-}
-</style>
-
 	<div class="row ">
 		<div class="col-md-offset-1 col-md-10">
 		<textarea name="content" id={{ form.content.id_for_label }}>{{ form.content.value }}</textarea>
@@ -162,6 +151,7 @@
 {% block scripts %}
 <script type="text/javascript" src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
 <script type="text/javascript" src="{% static 'html/js/rackspace-upload.js'%}"></script>
+<script type="text/javascript" src="{% static 'html/js/create-post.js'%}"></script>
 <script type="text/javascript"> 
 
 $( document ).ready(function() {
@@ -237,6 +227,7 @@ tinymce.PluginManager.add('video', function(editor, url) {
 
     tinymce.init({
         selector: "textarea#id_content",
+		height:400,
         plugins: [
             "video advlist autolink lists link image charmap print preview anchor",
             "searchreplace visualblocks code fullscreen",
